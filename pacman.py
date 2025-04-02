@@ -201,6 +201,8 @@ while running:
         dot_positions.remove((px, py))
 
     pacman.update()
+
+    # red ghost using A* search
     red_ghost = ghosts[0]
     red_ghost_pos = pixel_to_grid(ghosts[0].rect.x, ghosts[0].rect.y)
     pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
@@ -228,7 +230,7 @@ while running:
     ghost_pos = pixel_to_grid(orange_ghost.rect.x, orange_ghost.rect.y)
     pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
     path = ucs(ghost_pos, pacman_pos, tiles)
-    print("Orange Ghost Path:", path)
+
     if len(path) >= 2:
         next_pos = path[1]
         tx, ty = grid_to_pixel(*next_pos)

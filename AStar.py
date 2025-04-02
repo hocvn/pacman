@@ -1,17 +1,17 @@
 import heapq
 
-def heuristic(pos, target):
-    """Calculate the Manhattan distance heuristic."""
-    return abs(pos[0] - target[0]) + abs(pos[1] - target[1])
-
+def heuristic(pos, target, danger_zones=None, weight=1):
+    """Combined heuristic: Manhattan distance + danger zone penalty."""
+    penalty = 0
+    if danger_zones and pos in danger_zones:
+        penalty = 10  # Add a penalty for being in a danger zone
+    return weight * (abs(pos[0] - target[0]) + abs(pos[1] - target[1])) + penalty
 def is_valid_ghost_position(pos, maze):
     """Check if the position is within bounds and not a wall."""
     x, y = pos
     return 0 <= x < len(maze) and 0 <= y < len(maze[0]) and maze[x][y] != '#'
 
-def ghost_astar_search(tiles, start, goal):
-    def heuristic(a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+def ghost_astar_search(tiles, start, goal, danger_zones=None):
 
     rows, cols = len(tiles), len(tiles[0])
     open_set = []
@@ -29,7 +29,7 @@ def ghost_astar_search(tiles, start, goal):
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            return path[::-1]  # Trả về đường đi theo thứ tự đúng
+            return path[::-1]
 
         x, y = current
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
@@ -42,6 +42,6 @@ def ghost_astar_search(tiles, start, goal):
                     f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
                     heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-    return []  # Không tìm thấy đường đi
+    return []
 
 
