@@ -1,8 +1,7 @@
 import pygame
 from enum import Enum
-import dfs
-import ucs
-
+from DFS import ghost_dfs_search
+from UCS import ghost_uniform_cost_search
 from AStar import ghost_astar_search 
 
 # Initialize Pygame
@@ -105,9 +104,9 @@ pacman = Pacman(GRID_SIZE * (N // 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N /
 
 ghosts = [
     Ghost(GRID_SIZE + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "red"),                         ## Red ghost - top left
-    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "orange"),            ## Orange ghost - top right
+    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "pink"),              ## Pink ghost - top right
     Ghost(GRID_SIZE + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "blue"),              ## Blue ghost - bottom left
-    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "pink")     ## Pink ghost - bottom right
+    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "orange")     ## Orange ghost - bottom right
 ]
 
 all_sprites = pygame.sprite.Group()
@@ -233,13 +232,13 @@ while running:
         path = []
 
         if ghost.color == "red":
-            pass # TODO: Implement A* algorithm for red ghost
+            path = ghost_astar_search(tiles, ghost_pos, pacman_pos)
         elif ghost.color == "pink":
-            path = dfs.dfs(ghost_pos, pacman_pos, tiles, ghost.last_position)
+            path = ghost_dfs_search(ghost_pos, pacman_pos, tiles, ghost.last_position)
         elif ghost.color == "blue":
             pass # TODO: Implement BFS algorithm for blue ghost
         elif ghost.color == "orange":
-            path = ucs.ucs(ghost_pos, pacman_pos, tiles)
+            path = ghost_uniform_cost_search(ghost_pos, pacman_pos, tiles)
 
         move_ghost(ghost, path)
         ghost.update()

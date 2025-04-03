@@ -3,7 +3,7 @@
 
 import heapq
 
-def ucs(start, goal, tiles):
+def ghost_uniform_cost_search(start, goal, tiles):
     rows, cols = len(tiles), len(tiles[0])
     visited = set()
     pq = []

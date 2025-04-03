@@ -1,7 +1,7 @@
 # DFS algorithm to find a path in a maze
 # This code implements a depth-first search (DFS) algorithm to find a path in a maze.
 
-def dfs(start, goal, tiles, last_position=None):
+def ghost_dfs_search(start, goal, tiles, last_position=None):
     rows, cols = len(tiles), len(tiles[0])
     visited = set()     # store place that visited
     stack = []          # store position that need to visit
