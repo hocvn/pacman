@@ -3,6 +3,8 @@ from enum import Enum
 import dfs
 import ucs
 
+from AStar import ghost_astar_search 
+
 # Initialize Pygame
 pygame.init()
 
@@ -222,7 +224,6 @@ while running:
         dot_positions.remove((px, py))
 
     pacman.update()
-
 
     # Ghost movement
     pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
