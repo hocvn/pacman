@@ -10,11 +10,11 @@ pygame.init()
 # Screen settings
 N = 21
 GRID_SIZE = 28
-CHARACTER_SIZE = 24
+CHARACTER_SIZE = 26
 WIDTH, HEIGHT = GRID_SIZE * N, GRID_SIZE * N
 DISTANCE_WITH_WALL = 2
-PACMAN_SPEED = 4
-GHOST_SPEED = 4
+PACMAN_SPEED = 2
+GHOST_SPEED = 2
 ROWS, COLS = HEIGHT // GRID_SIZE, WIDTH // GRID_SIZE
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man with 4 AI Ghosts")
@@ -90,10 +90,21 @@ class Ghost(pygame.sprite.Sprite):
 
     def Move(self, direction):
         dx, dy = direction.value
+        current_position = self.rect.copy()
         self.rect.x += dx
         self.rect.y += dy
+
+        if pixel_to_grid(self.rect.x, self.rect.y) != pixel_to_grid(current_position.x, current_position.y):
+            self.last_position = pixel_to_grid(current_position.x, current_position.y)
+
+        if self.color == "pink":
+            print(pixel_to_grid(self.rect.x, self.rect.y))
+            print(pixel_to_grid(current_position.x, current_position.y))
+            print(self.last_position)
+
         if direction != self.direction:
             self.direction = direction
+
             if direction == Direction.RIGHT: self.index = 0
             elif direction == Direction.LEFT: self.index = 2
             elif direction == Direction.UP: self.index = 4
@@ -116,7 +127,7 @@ tiles = [
     "#####################",
     "#                   #",
     "# ### ### ### ### ###",
-    "# #   #   #   #   # #",
+    "# #   #       #   # #",
     "# # ### # # # ### # #",
     "#     #   #   #     #",
     "### # ###   ### # ###",
@@ -125,8 +136,8 @@ tiles = [
     "# #   #   #   #   # #",
     "# ### ###   ### ### #",
     "#   #           #   #",
-    "### # ######### # ###",
-    "#   #     #     #   #",
+    "### # #### #### # ###",
+    "#               #   #",
     "# ### ### # ### ### #",
     "# #   #       #   # #",
     "# ###   #####   ### #",
@@ -154,15 +165,13 @@ def check_move_collision(rect, direction):
                for y, row in enumerate(tiles) for x, tile in enumerate(row) if tile == "#")
 
 
-
 # Function to move the ghost towards the next position in the path which is calculated by the algorithm
 def move_ghost(ghost, path):
     if len(path) < 2:
         return
     
-    direction = Direction.NONE
+    direction = ghost.direction
     next_pos = path[1]
-    ghost.last_position = path[0]
 
     tx, ty = grid_to_pixel(*next_pos)
     gx, gy = ghost.rect.x, ghost.rect.y
@@ -189,6 +198,7 @@ running = True
 clock = pygame.time.Clock()
 direction = Direction.NONE
 next_direction = Direction.NONE
+loop = 0
 
 while running:
     screen.fill(BLACK)
@@ -222,7 +232,8 @@ while running:
     if (px, py) in dot_positions:
         dot_positions.remove((px, py))
 
-    pacman.update()
+    if loop % 3 == 0: 
+        pacman.update()
 
     # Ghost movement
     pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
@@ -232,16 +243,19 @@ while running:
         path = []
 
         if ghost.color == "red":
+            continue
             path = ghost_astar_search(tiles, ghost_pos, pacman_pos)
         elif ghost.color == "pink":
             path = ghost_dfs_search(ghost_pos, pacman_pos, tiles, ghost.last_position)
         elif ghost.color == "blue":
             pass # TODO: Implement BFS algorithm for blue ghost
         elif ghost.color == "orange":
+            continue
             path = ghost_uniform_cost_search(ghost_pos, pacman_pos, tiles)
 
         move_ghost(ghost, path)
-        ghost.update()
+        if loop % 3 == 0:
+            ghost.update()
 
     all_sprites.draw(screen)
     pygame.display.flip()
@@ -257,6 +271,7 @@ while running:
             pygame.display.flip()
             pygame.time.wait(3000)
 
-    clock.tick(10)
+    loop = (1 + loop) % 3
+    clock.tick(30)
 
 pygame.quit()

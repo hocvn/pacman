@@ -1,5 +1,5 @@
-import dfs
-import ucs
+import DFS
+import UCS
 
 tiles = [
     "#####################",
@@ -50,30 +50,11 @@ maze = [
 ]
 
 
-path = dfs.dfs((14, 19), (10, 10), tiles)
-path3 = dfs.dfs((15, 19), (10, 10), tiles)
+path = DFS.ghost_dfs_search((16, 1), (10, 10), tiles)
+path3 = DFS.ghost_dfs_search((17, 1), (10, 10), tiles)
 # print(tiles[19][20])
 # path = dfs.dfs((2, 1), (3, 5), maze)
-path2 = ucs.ucs((19, 19), (10, 10), tiles)
-# print(path)
-# print('\n')
-# print(path3)
-
-
-import binascii
-import base64
-
-encoded_secret = "3d3d516343746d4d6d6c315669563362"
-
-# Chuyển từ Hex về chuỗi
-decoded_hex = binascii.unhexlify(encoded_secret)
-print(decoded_hex)
-
-# Đảo ngược chuỗi
-reversed_string = decoded_hex[::-1]
-print(reversed_string)
-
-# Giải mã Base64
-original_secret = base64.b64decode(reversed_string).decode()
-
-print("Secret:", original_secret)
+path2 = UCS.ghost_uniform_cost_search((19, 19), (10, 10), tiles)
+print(path)
+print('\n')
+print(path3)
