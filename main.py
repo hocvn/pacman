@@ -3,19 +3,13 @@ from enum import Enum
 from DFS import ghost_dfs_search
 from UCS import ghost_uniform_cost_search
 from AStar import ghost_astar_search 
+import draw_grid
+from config import N, GRID_SIZE, WIDTH, HEIGHT, DISTANCE_WITH_WALL, CHARACTER_SIZE, PACMAN_SPEED, tiles
 
 # Initialize Pygame
 pygame.init()
 
 # Screen settings
-N = 21
-GRID_SIZE = 28
-CHARACTER_SIZE = 26
-WIDTH, HEIGHT = GRID_SIZE * N, GRID_SIZE * N
-DISTANCE_WITH_WALL = 2
-PACMAN_SPEED = 2
-GHOST_SPEED = 2
-ROWS, COLS = HEIGHT // GRID_SIZE, WIDTH // GRID_SIZE
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man with 4 AI Ghosts")
 
@@ -97,11 +91,6 @@ class Ghost(pygame.sprite.Sprite):
         if pixel_to_grid(self.rect.x, self.rect.y) != pixel_to_grid(current_position.x, current_position.y):
             self.last_position = pixel_to_grid(current_position.x, current_position.y)
 
-        if self.color == "pink":
-            print(pixel_to_grid(self.rect.x, self.rect.y))
-            print(pixel_to_grid(current_position.x, current_position.y))
-            print(self.last_position)
-
         if direction != self.direction:
             self.direction = direction
 
@@ -117,35 +106,13 @@ ghosts = [
     Ghost(GRID_SIZE + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "red"),                         ## Red ghost - top left
     Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "pink"),              ## Pink ghost - top right
     Ghost(GRID_SIZE + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "blue"),              ## Blue ghost - bottom left
-    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "orange")     ## Orange ghost - bottom right
+    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "orange")   ## Orange ghost - bottom right
 ]
 
 all_sprites = pygame.sprite.Group()
 all_sprites.add(pacman, *ghosts)
 
-tiles = [
-    "#####################",
-    "#                   #",
-    "# ### ### ### ### ###",
-    "# #   #       #   # #",
-    "# # ### # # # ### # #",
-    "#     #   #   #     #",
-    "### # ###   ### # ###",
-    "#   #     #     #   #",
-    "# ### ### # ### ### #",
-    "# #   #   #   #   # #",
-    "# ### ###   ### ### #",
-    "#   #           #   #",
-    "### # #### #### # ###",
-    "#               #   #",
-    "# ### ### # ### ### #",
-    "# #   #       #   # #",
-    "# ###   #####   ### #",
-    "#     #       #     #",
-    "# ### # ##### # #####",
-    "#                   #",
-    "#####################",
-]
+
 
 for y, row in enumerate(tiles):
     for x, tile in enumerate(row):
@@ -176,10 +143,6 @@ def move_ghost(ghost, path):
     tx, ty = grid_to_pixel(*next_pos)
     gx, gy = ghost.rect.x, ghost.rect.y
 
-    if ghost.color == "pink":
-        print(pixel_to_grid(gx, gy))
-        print(pixel_to_grid(tx, ty))
-
     if tx > gx and not check_move_collision(ghost.rect, Direction.RIGHT):
         direction = Direction.RIGHT
     elif tx < gx and not check_move_collision(ghost.rect, Direction.LEFT):
@@ -191,8 +154,8 @@ def move_ghost(ghost, path):
 
     ghost.Move(direction)
 
-    if ghost.color == "pink":
-        print(direction)
+wall_types = draw_grid.classify_wall(tiles)
+print("Wall types classified.", wall_types[15][11])
 
 running = True
 clock = pygame.time.Clock()
@@ -202,11 +165,11 @@ loop = 0
 
 while running:
     screen.fill(BLACK)
-    for y, row in enumerate(tiles):
-        for x, tile in enumerate(row):
-            if tile == "#":
-                pygame.draw.rect(screen, GREEN, (x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
 
+    # Draw the grid
+    draw_grid.draw_grid(screen, tiles, wall_types)
+
+    # Draw the dots
     for dx, dy in dot_positions:
         screen.blit(dot_img, (dx * GRID_SIZE + GRID_SIZE // 4, dy * GRID_SIZE + GRID_SIZE // 4))
 
@@ -243,14 +206,12 @@ while running:
         path = []
 
         if ghost.color == "red":
-            continue
             path = ghost_astar_search(tiles, ghost_pos, pacman_pos)
         elif ghost.color == "pink":
             path = ghost_dfs_search(ghost_pos, pacman_pos, tiles, ghost.last_position)
         elif ghost.color == "blue":
             pass # TODO: Implement BFS algorithm for blue ghost
         elif ghost.color == "orange":
-            continue
             path = ghost_uniform_cost_search(ghost_pos, pacman_pos, tiles)
 
         move_ghost(ghost, path)

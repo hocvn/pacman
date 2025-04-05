@@ -1,5 +1,6 @@
 import DFS
 import UCS
+import pygame
 
 tiles = [
     "#####################",
@@ -50,11 +51,26 @@ maze = [
 ]
 
 
-path = DFS.ghost_dfs_search((16, 1), (10, 10), tiles)
-path3 = DFS.ghost_dfs_search((17, 1), (10, 10), tiles)
-# print(tiles[19][20])
-# path = dfs.dfs((2, 1), (3, 5), maze)
-path2 = UCS.ghost_uniform_cost_search((19, 19), (10, 10), tiles)
-print(path)
-print('\n')
-print(path3)
+# path = DFS.ghost_dfs_search((16, 1), (10, 10), tiles)
+# path3 = DFS.ghost_dfs_search((17, 1), (10, 10), tiles)
+# # print(tiles[19][20])
+# # path = dfs.dfs((2, 1), (3, 5), maze)
+# path2 = UCS.ghost_uniform_cost_search((19, 19), (10, 10), tiles)
+# print(path)
+# print('\n')
+# print(path3)
+
+wall = pygame.image.load("./assets/wall/15.png")
+wall = pygame.transform.scale(wall, (28, 28))
+wall_rect = wall.get_rect(topleft=(0, 0))
+screen = pygame.display.set_mode((28 * 21, 28 * 21))
+screen.blit(wall, (28, 28))
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Update the display
+    pygame.display.flip()
