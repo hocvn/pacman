@@ -1,11 +1,40 @@
 import heapq
 
-def heuristic(pos, target, danger_zones=None, weight=1):
-    """Combined heuristic: Manhattan distance + danger zone penalty."""
+import pycosat
+
+def is_move_valid(clauses, assumptions):
+    """
+    clauses: CNF clauses as list of lists (e.g., [[1, -2], [3]])
+    assumptions: current known facts (e.g., [4, -5])
+    Returns: True if satisfiable, False otherwise
+    """
+    solution = pycosat.solve(clauses + [[a] for a in assumptions])
+    return solution != 'UNSAT'
+
+
+def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_assignments=None):
+    """
+    Heuristic with SAT-checking:
+    - Rejects paths that lead to logic inconsistency.
+    """
+    assumptions = current_assignments.copy() if current_assignments else []
+
+    # Encode the next move as a propositional assignment (e.g., pos -> variable)
+    # For example, assume pos = (x=3, y=4) maps to variable id = 3 * N + 4
+    move_var = pos[0] * 100 + pos[1]  # Just an example encoding
+    assumptions.append(move_var)
+
+    # Use SAT solver to validate move
+    if clauses and not is_move_valid(clauses, assumptions):
+        return float('inf')  # Blocked by logic rule
+
+    # Otherwise, return normal heuristic
+    base_distance = abs(pos[0] - target[0]) + abs(pos[1] - target[1])
     penalty = 0
     if danger_zones and pos in danger_zones:
-        penalty = 10  # Add a penalty for being in a danger zone
-    return weight * (abs(pos[0] - target[0]) + abs(pos[1] - target[1])) + penalty
+        penalty = 10
+    return weight * base_distance + penalty
+
 def is_valid_ghost_position(pos, maze):
     """Check if the position is within bounds and not a wall."""
     x, y = pos

@@ -14,7 +14,7 @@ CHARACTER_SIZE = 24
 WIDTH, HEIGHT = GRID_SIZE * N, GRID_SIZE * N
 DISTANCE_WITH_WALL = 2
 PACMAN_SPEED = 4
-GHOST_SPEED = 4
+GHOST_SPEED = 3
 ROWS, COLS = HEIGHT // GRID_SIZE, WIDTH // GRID_SIZE
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man with 4 AI Ghosts")
