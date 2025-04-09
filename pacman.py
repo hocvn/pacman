@@ -1,6 +1,8 @@
 import pygame
 from collections import deque
 import heapq
+import time 
+import tracemalloc
 
 from AStar import ghost_astar_search 
 
@@ -169,6 +171,10 @@ clock = pygame.time.Clock()
 direction = -1
 next_direction = -1
 
+total_search_time = 0
+total_memory_usage = 0
+total_nodes_opened = 0
+
 while running:
     screen.fill(BLACK)
     for y, row in enumerate(tiles):
@@ -206,7 +212,20 @@ while running:
     red_ghost = ghosts[0]
     red_ghost_pos = pixel_to_grid(ghosts[0].rect.x, ghosts[0].rect.y)
     pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
-    path_to_pacman = ghost_astar_search(tiles, red_ghost_pos, pacman_pos)
+    
+    
+    tracemalloc.start()
+    start_time = time.time()
+    path_to_pacman, nodes_opened = ghost_astar_search(tiles, red_ghost_pos, pacman_pos)
+    end_time = time.time()
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    total_search_time += end_time - start_time
+    total_memory_usage += current
+    total_nodes_opened += nodes_opened
+    
+    
     if len(path_to_pacman) >= 2:
         next_pos = path_to_pacman[1]  # First step in the path
         tx, ty = grid_to_pixel(*next_pos)  # Convert to pixel position
@@ -261,4 +280,7 @@ while running:
 
     clock.tick(10)
 
+print(f"Total A* Search Time: {total_search_time:.6f} seconds")
+print(f"Total Peak Memory Usage: {total_memory_usage:.2f} KB")
+print(f"Total Nodes Opened: {total_nodes_opened}")
 pygame.quit()

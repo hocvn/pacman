@@ -48,9 +48,11 @@ def ghost_astar_search(tiles, start, goal, danger_zones=None):
     came_from = {}
     g_score = {start: 0}
     f_score = {start: heuristic(start, goal)}
+    nodes_opened = 0
 
     while open_set:
         _, current = heapq.heappop(open_set)
+        nodes_opened += 1
 
         if current == goal:
             path = []
@@ -58,7 +60,7 @@ def ghost_astar_search(tiles, start, goal, danger_zones=None):
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            return path[::-1]
+            return path[::-1], nodes_opened
 
         x, y = current
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
@@ -71,6 +73,6 @@ def ghost_astar_search(tiles, start, goal, danger_zones=None):
                     f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
                     heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-    return []
+    return [], nodes_opened
 
 
