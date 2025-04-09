@@ -2,6 +2,8 @@ import pygame
 from collections import deque
 import heapq
 
+from AStar import ghost_astar_search 
+
 # Initialize Pygame
 pygame.init()
 
@@ -12,7 +14,7 @@ CHARACTER_SIZE = 24
 WIDTH, HEIGHT = GRID_SIZE * N, GRID_SIZE * N
 DISTANCE_WITH_WALL = 2
 PACMAN_SPEED = 4
-GHOST_SPEED = 4
+GHOST_SPEED = 3
 ROWS, COLS = HEIGHT // GRID_SIZE, WIDTH // GRID_SIZE
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man with 4 AI Ghosts")
@@ -200,18 +202,35 @@ while running:
 
     pacman.update()
 
+    # red ghost using A* search
     red_ghost = ghosts[0]
-    red_ghost.Move(0)
+    red_ghost_pos = pixel_to_grid(ghosts[0].rect.x, ghosts[0].rect.y)
+    pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
+    path_to_pacman = ghost_astar_search(tiles, red_ghost_pos, pacman_pos)
+    if len(path_to_pacman) >= 2:
+        next_pos = path_to_pacman[1]  # First step in the path
+        tx, ty = grid_to_pixel(*next_pos)  # Convert to pixel position
+        gx, gy = red_ghost.rect.x, red_ghost.rect.y
+        if tx > gx and not check_move_collision(red_ghost.rect, 0):
+            red_ghost.Move(0)
+        elif tx < gx and not check_move_collision(red_ghost.rect, 1):
+            red_ghost.Move(1)
+        elif ty < gy and not check_move_collision(red_ghost.rect, 2):
+            red_ghost.Move(2)
+        elif ty > gy and not check_move_collision(red_ghost.rect, 3):
+            red_ghost.Move(3)
     red_ghost.update()
+
 
     blue_ghost = ghosts[2]
     blue_ghost.Move(2)
-    blue_ghost.update()
+    blue_ghost.update()                
 
     orange_ghost = ghosts[3]
     ghost_pos = pixel_to_grid(orange_ghost.rect.x, orange_ghost.rect.y)
     pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
     path = ucs(ghost_pos, pacman_pos, tiles)
+
     if len(path) >= 2:
         next_pos = path[1]
         tx, ty = grid_to_pixel(*next_pos)
