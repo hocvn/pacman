@@ -1,3 +1,5 @@
 .venv
 myvenv/
 test.py
+__pycache__/
+*.pyc
