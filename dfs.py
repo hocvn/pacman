@@ -6,10 +6,13 @@ def ghost_dfs_search(start, goal, tiles, last_position):
     visited = set()     # store place that visited
     stack = []          # store position that need to visit
     stack.append(start)
-    trace = {}          # store path that visited
+    trace = {}          # store path that visited\
+    expanded_nodes = 0    # count number of expanded nodes
 
     while stack:
         current = stack.pop()
+        expanded_nodes += 1
+
         if current == goal:
             path = []
             while current != start:
@@ -17,7 +20,7 @@ def ghost_dfs_search(start, goal, tiles, last_position):
                 current = trace[current]
             path.append(start)
             path.reverse()  # reverse the path to get the correct order
-            return path
+            return path, expanded_nodes
     
         x, y = current
 
@@ -30,4 +33,4 @@ def ghost_dfs_search(start, goal, tiles, last_position):
                     stack.append(next_pos)
                     visited.add(next_pos)  # mark as visited
                     trace[next_pos] = current   # store the path
-    return []
+    return [], 0

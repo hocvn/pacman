@@ -8,10 +8,14 @@ def ghost_uniform_cost_search(start, goal, tiles):
     visited = set()
     pq = []
     heapq.heappush(pq, (0, start, [start]))
+    expanded_nodes = 0
+
     while pq:
         cost, current, path = heapq.heappop(pq)
+        expanded_nodes += 1
+
         if current == goal:
-            return path
+            return path, expanded_nodes
         if current in visited:
             continue
         visited.add(current)

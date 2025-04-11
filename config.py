@@ -1,6 +1,9 @@
+from enum import Enum
+
+# Screen settings
 N = 21
 GRID_SIZE = 28
-CHARACTER_SIZE = 26
+CHARACTER_SIZE = 28
 WIDTH = GRID_SIZE * N
 HEIGHT = GRID_SIZE * N
 
@@ -10,6 +13,15 @@ GHOST_SPEED = 2
 
 ROWS = HEIGHT // GRID_SIZE
 COLS = WIDTH // GRID_SIZE
+
+# Directions: Right, Left, Up, Down
+class Direction(Enum):
+    NONE = (0, 0)
+    RIGHT = (PACMAN_SPEED, 0)
+    LEFT = (-PACMAN_SPEED, 0)
+    UP = (0, -PACMAN_SPEED)
+    DOWN = (0, PACMAN_SPEED)
+
 
 tiles = [
     "#####################",
