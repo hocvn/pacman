@@ -1,6 +1,7 @@
 import pygame
 from collections import deque
 import heapq
+
 import time 
 import tracemalloc
 
@@ -141,6 +142,37 @@ def check_move_collision(rect, direction):
     return any(check_collision(next_position, pygame.Rect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
                for y, row in enumerate(tiles) for x, tile in enumerate(row) if tile == "#")
 
+def bfs(start, goal, tiles):
+    rows, cols = len(tiles), len(tiles[0])
+    visited = set()
+    queue = deque([(start, [start])])
+    expanded_nodes = 0  # Đếm số nút được mở rộng
+    max_queue_size = 1  # Theo dõi kích thước hàng đợi tối đa (cho memory usage)
+
+    start_time = time.time()  # Đo thời gian bắt đầu
+
+    while queue:
+        current, path = queue.popleft()
+        expanded_nodes += 1
+
+        if current == goal:
+            end_time = time.time()
+            search_time = end_time - start_time
+            return path, search_time, max_queue_size, expanded_nodes
+
+        if current in visited:
+            continue
+        visited.add(current)
+
+        x, y = current
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Trái, Phải, Lên, Xuống
+            nx, ny = x + dx, y + dy
+            if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#' and (nx, ny) not in visited:
+                queue.append(((nx, ny), path + [(nx, ny)]))
+                max_queue_size = max(max_queue_size, len(queue))
+
+    return [], 0, 0, expanded_nodes  # Không tìm thấy đường
+
 def ucs(start, goal, tiles):
     rows, cols = len(tiles), len(tiles[0])
     visited = set()
@@ -201,6 +233,9 @@ while running:
 
     if direction != -1 and not check_move_collision(pacman.rect, direction):
         pacman.Move(direction)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
     px, py = pixel_to_grid(pacman.rect.centerx, pacman.rect.centery)
     if (px, py) in dot_positions:
@@ -242,8 +277,24 @@ while running:
 
 
     blue_ghost = ghosts[2]
-    blue_ghost.Move(2)
-    blue_ghost.update()                
+    ghost_pos = pixel_to_grid(blue_ghost.rect.x, blue_ghost.rect.y)
+    pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
+    path, search_time, max_queue_size, expanded_nodes = bfs(ghost_pos, pacman_pos, tiles)
+    if len(path) >= 2:
+        next_pos = path[1]  # Ô tiếp theo trong đường đi
+        tx, ty = grid_to_pixel(*next_pos)
+        gx, gy = blue_ghost.rect.x, blue_ghost.rect.y
+        if tx > gx and not check_move_collision(blue_ghost.rect, 0):  # Phải
+            blue_ghost.Move(0)
+        elif tx < gx and not check_move_collision(blue_ghost.rect, 1):  # Trái
+            blue_ghost.Move(1)
+        elif ty < gy and not check_move_collision(blue_ghost.rect, 2):  # Lên
+            blue_ghost.Move(2)
+        elif ty > gy and not check_move_collision(blue_ghost.rect, 3):  # Xuống
+            blue_ghost.Move(3)
+    # Lưu kết quả để báo cáo
+    print(f"BFS - Search Time: {search_time:.6f}s, Max Queue Size: {max_queue_size}, Expanded Nodes: {expanded_nodes}")
+    blue_ghost.update()
 
     orange_ghost = ghosts[3]
     ghost_pos = pixel_to_grid(orange_ghost.rect.x, orange_ghost.rect.y)
@@ -280,7 +331,9 @@ while running:
 
     clock.tick(10)
 
+
 print(f"Total A* Search Time: {total_search_time:.6f} seconds")
 print(f"Total Peak Memory Usage: {total_memory_usage:.2f} KB")
 print(f"Total Nodes Opened: {total_nodes_opened}")
 pygame.quit()
+
