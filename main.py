@@ -116,6 +116,7 @@ class Ghost(pygame.sprite.Sprite):
 pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
 
 # Random position: Ghost(GRID_SIZE * (N - 6), GRID_SIZE * 3, "pink")
+#Random position: Ghost(GRID_SIZE * 1, GRID_SIZE * 9, "blue")
 ghosts = [
     Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
     Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),              ## Pink ghost - top right
