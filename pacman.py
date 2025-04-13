@@ -17,7 +17,7 @@ CHARACTER_SIZE = 24
 WIDTH, HEIGHT = GRID_SIZE * N, GRID_SIZE * N
 DISTANCE_WITH_WALL = 2
 PACMAN_SPEED = 4
-GHOST_SPEED = 3
+GHOST_SPEED = 28
 ROWS, COLS = HEIGHT // GRID_SIZE, WIDTH // GRID_SIZE
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man with 4 AI Ghosts")
@@ -26,7 +26,7 @@ pygame.display.set_caption("Pac-Man with 4 AI Ghosts")
 BLACK, GREEN, YELLOW = (0, 0, 0), (0, 128, 0), (255, 255, 0)
 
 # Directions: Right, Left, Up, Down
-directions = [(PACMAN_SPEED, 0), (-PACMAN_SPEED, 0), (0, -PACMAN_SPEED), (0, PACMAN_SPEED)]
+directions = [(GHOST_SPEED, 0), (-GHOST_SPEED, 0), (0, -GHOST_SPEED), (0, GHOST_SPEED)]
 
 pacman_dir = (0, 0)
 
@@ -94,10 +94,10 @@ class Ghost(pygame.sprite.Sprite):
 pacman = Pacman(GRID_SIZE * (N // 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N // 2) + DISTANCE_WITH_WALL // 2)
 
 ghosts = [
-    Ghost(GRID_SIZE + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "red"),
-    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "pink"),
-    Ghost(GRID_SIZE + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "blue"),
-    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "orange")
+    # Ghost(GRID_SIZE + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "red"),
+    # Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "pink"),
+    Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE + DISTANCE_WITH_WALL // 2, "blue"),
+    # Ghost(GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, GRID_SIZE * (N - 2) + DISTANCE_WITH_WALL // 2, "orange")
 ]
 
 all_sprites = pygame.sprite.Group()
@@ -191,7 +191,6 @@ def ucs(start, goal, tiles):
             if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#':
                 heapq.heappush(pq, (cost + 1, (nx, ny), path + [(nx, ny)]))
     return []
-
 def pixel_to_grid(x, y):
     return x // GRID_SIZE, y // GRID_SIZE
 
@@ -207,6 +206,10 @@ total_search_time = 0
 total_memory_usage = 0
 total_nodes_opened = 0
 
+total_bfs_search_time = 0
+total_bfs_memory_usage = 0
+total_bfs_nodes_opened = 0
+
 while running:
     screen.fill(BLACK)
     for y, row in enumerate(tiles):
@@ -220,19 +223,19 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT: next_direction = 0
-            elif event.key == pygame.K_LEFT: next_direction = 1
-            elif event.key == pygame.K_UP: next_direction = 2
-            elif event.key == pygame.K_DOWN: next_direction = 3
+    #     elif event.type == pygame.KEYDOWN:
+    #         if event.key == pygame.K_RIGHT: next_direction = 0
+    #         elif event.key == pygame.K_LEFT: next_direction = 1
+    #         elif event.key == pygame.K_UP: next_direction = 2
+    #         elif event.key == pygame.K_DOWN: next_direction = 3
 
-    if next_direction != -1:
-        if not check_move_collision(pacman.rect, next_direction):
-            pacman_dir = directions[next_direction]
-            direction = next_direction
+    # if next_direction != -1:
+    #     if not check_move_collision(pacman.rect, next_direction):
+    #         pacman_dir = directions[next_direction]
+    #         direction = next_direction
 
-    if direction != -1 and not check_move_collision(pacman.rect, direction):
-        pacman.Move(direction)
+    # if direction != -1 and not check_move_collision(pacman.rect, direction):
+    #     pacman.Move(direction)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -243,45 +246,56 @@ while running:
 
     pacman.update()
 
-    # red ghost using A* search
-    red_ghost = ghosts[0]
-    red_ghost_pos = pixel_to_grid(ghosts[0].rect.x, ghosts[0].rect.y)
+    # # red ghost using A* search
+    # red_ghost = ghosts[0]
+    # red_ghost_pos = pixel_to_grid(ghosts[0].rect.x, ghosts[0].rect.y)
+    # pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
+    
+    
+    # tracemalloc.start()
+    # start_time = time.time()
+    # path_to_pacman, nodes_opened = ghost_astar_search(tiles, red_ghost_pos, pacman_pos)
+    # end_time = time.time()
+    # current, peak = tracemalloc.get_traced_memory()
+    # tracemalloc.stop()
+
+    # total_search_time += end_time - start_time
+    # total_memory_usage += current
+    # total_nodes_opened += nodes_opened
+    
+    
+    # if len(path_to_pacman) >= 2:
+    #     next_pos = path_to_pacman[1]  # First step in the path
+    #     tx, ty = grid_to_pixel(*next_pos)  # Convert to pixel position
+    #     gx, gy = red_ghost.rect.x, red_ghost.rect.y
+    #     if tx > gx and not check_move_collision(red_ghost.rect, 0):
+    #         red_ghost.Move(0)
+    #     elif tx < gx and not check_move_collision(red_ghost.rect, 1):
+    #         red_ghost.Move(1)
+    #     elif ty < gy and not check_move_collision(red_ghost.rect, 2):
+    #         red_ghost.Move(2)
+    #     elif ty > gy and not check_move_collision(red_ghost.rect, 3):
+    #         red_ghost.Move(3)
+    # red_ghost.update()
+
+
+    blue_ghost = ghosts[0]
+    ghost_pos = pixel_to_grid(blue_ghost.rect.x, blue_ghost.rect.y)
     pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
-    
-    
+
     tracemalloc.start()
     start_time = time.time()
-    path_to_pacman, nodes_opened = ghost_astar_search(tiles, red_ghost_pos, pacman_pos)
+    path, search_time, max_queue_size, expanded_nodes = bfs(ghost_pos, pacman_pos, tiles)
     end_time = time.time()
     current, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
-    total_search_time += end_time - start_time
-    total_memory_usage += current
-    total_nodes_opened += nodes_opened
-    
-    
-    if len(path_to_pacman) >= 2:
-        next_pos = path_to_pacman[1]  # First step in the path
-        tx, ty = grid_to_pixel(*next_pos)  # Convert to pixel position
-        gx, gy = red_ghost.rect.x, red_ghost.rect.y
-        if tx > gx and not check_move_collision(red_ghost.rect, 0):
-            red_ghost.Move(0)
-        elif tx < gx and not check_move_collision(red_ghost.rect, 1):
-            red_ghost.Move(1)
-        elif ty < gy and not check_move_collision(red_ghost.rect, 2):
-            red_ghost.Move(2)
-        elif ty > gy and not check_move_collision(red_ghost.rect, 3):
-            red_ghost.Move(3)
-    red_ghost.update()
+    total_bfs_search_time += end_time - start_time
+    total_bfs_memory_usage += current
+    total_bfs_nodes_opened += expanded_nodes
 
-
-    blue_ghost = ghosts[2]
-    ghost_pos = pixel_to_grid(blue_ghost.rect.x, blue_ghost.rect.y)
-    pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
-    path, search_time, max_queue_size, expanded_nodes = bfs(ghost_pos, pacman_pos, tiles)
     if len(path) >= 2:
-        next_pos = path[1]  # Ô tiếp theo trong đường đi
+        next_pos = path[1]
         tx, ty = grid_to_pixel(*next_pos)
         gx, gy = blue_ghost.rect.x, blue_ghost.rect.y
         if tx > gx and not check_move_collision(blue_ghost.rect, 0):  # Phải
@@ -292,28 +306,26 @@ while running:
             blue_ghost.Move(2)
         elif ty > gy and not check_move_collision(blue_ghost.rect, 3):  # Xuống
             blue_ghost.Move(3)
-    # Lưu kết quả để báo cáo
-    print(f"BFS - Search Time: {search_time:.6f}s, Max Queue Size: {max_queue_size}, Expanded Nodes: {expanded_nodes}")
     blue_ghost.update()
 
-    orange_ghost = ghosts[3]
-    ghost_pos = pixel_to_grid(orange_ghost.rect.x, orange_ghost.rect.y)
-    pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
-    path = ucs(ghost_pos, pacman_pos, tiles)
+    # orange_ghost = ghosts[3]
+    # ghost_pos = pixel_to_grid(orange_ghost.rect.x, orange_ghost.rect.y)
+    # pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
+    # path = ucs(ghost_pos, pacman_pos, tiles)
 
-    if len(path) >= 2:
-        next_pos = path[1]
-        tx, ty = grid_to_pixel(*next_pos)
-        gx, gy = orange_ghost.rect.x, orange_ghost.rect.y
-        if tx > gx and not check_move_collision(orange_ghost.rect, 0):
-            orange_ghost.Move(0)
-        elif tx < gx and not check_move_collision(orange_ghost.rect, 1):
-            orange_ghost.Move(1)
-        elif ty < gy and not check_move_collision(orange_ghost.rect, 2):
-            orange_ghost.Move(2)
-        elif ty > gy and not check_move_collision(orange_ghost.rect, 3):
-            orange_ghost.Move(3)
-    orange_ghost.update()
+    # if len(path) >= 2:
+    #     next_pos = path[1]
+    #     tx, ty = grid_to_pixel(*next_pos)
+    #     gx, gy = orange_ghost.rect.x, orange_ghost.rect.y
+    #     if tx > gx and not check_move_collision(orange_ghost.rect, 0):
+    #         orange_ghost.Move(0)
+    #     elif tx < gx and not check_move_collision(orange_ghost.rect, 1):
+    #         orange_ghost.Move(1)
+    #     elif ty < gy and not check_move_collision(orange_ghost.rect, 2):
+    #         orange_ghost.Move(2)
+    #     elif ty > gy and not check_move_collision(orange_ghost.rect, 3):
+    #         orange_ghost.Move(3)
+    # orange_ghost.update()
 
     all_sprites.draw(screen)
     pygame.display.flip()
@@ -330,7 +342,9 @@ while running:
         pygame.time.wait(2000)
 
     clock.tick(10)
-
+print(f"Total BFS Search Time: {total_bfs_search_time:.6f} seconds")
+print(f"Total BFS Memory Usage: {total_bfs_memory_usage:.2f} KB")
+print(f"Total BFS Nodes Opened: {total_bfs_nodes_opened}")
 
 print(f"Total A* Search Time: {total_search_time:.6f} seconds")
 print(f"Total Peak Memory Usage: {total_memory_usage:.2f} KB")
