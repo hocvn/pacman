@@ -23,7 +23,7 @@ BLACK, GREEN, YELLOW = (0, 0, 0), (0, 128, 0), (255, 255, 0)
 pacman_dir = (0, 0)
 
 dot_img = pygame.image.load("./assets/dot.png")
-dot_img = pygame.transform.scale(dot_img, (CHARACTER_SIZE // 2, CHARACTER_SIZE // 2))
+dot_img = pygame.transform.scale(dot_img, (CHARACTER_SIZE // 3, CHARACTER_SIZE // 3))
 dot_positions = set()
 
 def pixel_to_grid(x, y):
@@ -84,6 +84,7 @@ class Ghost(pygame.sprite.Sprite):
         self.path = []
         self.last_position = pixel_to_grid(x, y)
         self.expanded_nodes = 0
+        self.banned_position = None
         
     def update(self):
         if self.index % 2 == 0:
@@ -101,6 +102,7 @@ class Ghost(pygame.sprite.Sprite):
         if pixel_to_grid(self.rect.x, self.rect.y) != pixel_to_grid(prev_position.x, prev_position.y):
             self.path.pop(0)
             self.last_position = pixel_to_grid(prev_position.x, prev_position.y)
+            self.banned_position = None
 
         if direction != self.direction:
             self.direction = direction
@@ -113,6 +115,7 @@ class Ghost(pygame.sprite.Sprite):
 
 pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
 
+# Random position: Ghost(GRID_SIZE * (N - 6), GRID_SIZE * 3, "pink")
 ghosts = [
     Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
     Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),              ## Pink ghost - top right
@@ -140,41 +143,96 @@ def check_move_collision(rect, direction):
     return any(check_collision(next_position, pygame.Rect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
                for y, row in enumerate(tiles) for x, tile in enumerate(row) if tile == "#")
 
-def get_ghost_path(ghost, pacman_pos):
+def check_ghost_collision(ghost_rect, direction):
+    next_position = ghost_rect.copy()
+    dx, dy = direction.value
+    
+    next_position.x += dx
+    next_position.y += dy
+
+    for other_ghost in ghosts:
+        if other_ghost != ghost_rect and check_collision(next_position, other_ghost.rect):
+            return True
+    return False
+
+def get_ghost_path(ghost, pacman_pos, start=None):
     ghost_pos = pixel_to_grid(ghost.rect.x, ghost.rect.y)
     path = []
     expanded_nodes = 0
 
+    if start is not None:
+        ghost_pos = start
+
+    # Ghost do not move to the last position
+    banned_position = ghost.banned_position
+    if ghost.banned_position is None:
+        banned_position = ghost.last_position
+
     if ghost.color == "red":
-        path, expanded_nodes = ghost_astar_search(tiles, ghost_pos, pacman_pos)
+        path, expanded_nodes = ghost_astar_search(tiles, ghost_pos, pacman_pos, banned_position)
     elif ghost.color == "pink":
-        path, expanded_nodes = ghost_dfs_search(ghost_pos, pacman_pos, tiles, ghost.last_position)
+        path, expanded_nodes = ghost_dfs_search(ghost_pos, pacman_pos, tiles, banned_position)
     elif ghost.color == "blue":
-        path, expanded_nodes = ghost_bfs_search(ghost_pos, pacman_pos, tiles)
+        path, expanded_nodes = ghost_bfs_search(ghost_pos, pacman_pos, tiles, banned_position)
     elif ghost.color == "orange":
-        path, expanded_nodes = ghost_uniform_cost_search(ghost_pos, pacman_pos, tiles)
+        path, expanded_nodes = ghost_uniform_cost_search(ghost_pos, pacman_pos, tiles, banned_position)
     
     return path, expanded_nodes
 
+def get_direction(current_x, current_y, next_x, next_y):
+    if current_x < next_x:
+        return Direction.RIGHT
+    elif current_x > next_x:
+        return Direction.LEFT
+    elif current_y < next_y:
+        return Direction.DOWN
+    elif current_y > next_y:
+        return Direction.UP
+    return Direction.NONE
+
 # Function to move the ghost towards the next position in the path which is calculated by the algorithm
 def move_ghost(ghost, pacman_pos):
-    if pacman.changed_position == True or ghost.path == []:
+
+    # if ghost.color != "pink":
+    #     return
+    
+    if pacman.changed_position == True or len(ghost.path) < 2:
        ghost.path, ghost.expanded_nodes = get_ghost_path(ghost, pacman_pos)
 
+    if len(ghost.path) < 2:
+        return
+    
     direction = ghost.direction
-    next_pos = ghost.path[1]
+    current_pos = pixel_to_grid(ghost.rect.x, ghost.rect.y)
+    next_grid_pos = ghost.path[1]
 
-    tx, ty = grid_to_pixel(*next_pos)
+    tx, ty = grid_to_pixel(*next_grid_pos)
     gx, gy = ghost.rect.x, ghost.rect.y
 
-    if tx > gx and not check_move_collision(ghost.rect, Direction.RIGHT):
-        direction = Direction.RIGHT
-    elif tx < gx and not check_move_collision(ghost.rect, Direction.LEFT):
-        direction = Direction.LEFT
-    elif ty < gy and not check_move_collision(ghost.rect, Direction.UP):
-        direction = Direction.UP
-    elif ty > gy and not check_move_collision(ghost.rect, Direction.DOWN):
-        direction = Direction.DOWN
+    # Check ghost collide with wall
+    if (ghost.banned_position is None or ghost.last_position != ghost.banned_position) and not check_move_collision(ghost.rect, get_direction(gx, gy, tx, ty)):
+        direction = get_direction(gx, gy, tx, ty)
+
+    # Check ghost collide with other ghosts
+    next_pos = pixel_to_grid(ghost.rect.x + direction.value[0], ghost.rect.y + direction.value[1])
+
+    if check_ghost_collision(ghost.rect, direction):
+        # If the ghost collides with another ghost, find the other path
+        ghost.banned_position = next_pos
+
+        if next_pos != current_pos:
+            ghost.path, ghost.expanded_nodes = get_ghost_path(ghost, pacman_pos, start=current_pos)
+        else:
+            ghost.path, ghost.expanded_nodes = get_ghost_path(ghost, pacman_pos, start=ghost.last_position)
+            ghost.path.insert(0, current_pos)
+        ghost.last_position = ghost.banned_position
+
+        if len(ghost.path) < 2:
+            return
+        
+        next_grid_pos = ghost.path[1]
+        tx, ty = grid_to_pixel(*next_grid_pos)
+        direction = get_direction(gx, gy, tx, ty)
 
     ghost.Move(direction)
 
@@ -233,13 +291,11 @@ while running:
         move_ghost(ghost, pacman_pos)
         if loop % 3 == 0:
             ghost.update()
-    
-    pacman_movement = False
 
     all_sprites.draw(screen)
     pygame.display.flip()
 
-    # Check if Pacman colliderect ghosts
+    # Check pacman collide with ghost
     if any(ghost.rect.colliderect(pacman.rect) or
         pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y)
         for ghost in ghosts):

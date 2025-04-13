@@ -51,3 +51,10 @@ To get started with the project, follow these steps:
     > Peak: 0.153464MB  
     > Time taken: 52.04 seconds  
     > Expanded nodes: 151
+
+    Random position:
+
+    > Current memory usage: 0.146174MB  
+    > Peak: 0.153022MB  
+    > Time taken: 47.38 seconds  
+    > Expanded nodes: 140

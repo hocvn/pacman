@@ -3,7 +3,7 @@
 
 import heapq
 
-def ghost_uniform_cost_search(start, goal, tiles):
+def ghost_uniform_cost_search(start, goal, tiles, banned_position=None):
     rows, cols = len(tiles), len(tiles[0])
     visited = set()
     pq = []
@@ -22,6 +22,6 @@ def ghost_uniform_cost_search(start, goal, tiles):
         x, y = current
         for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
             nx, ny = x + dx, y + dy
-            if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#':
+            if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#' and (banned_position != (ny, nx) or current != start):
                 heapq.heappush(pq, (cost + 1, (nx, ny), path + [(nx, ny)]))
-    return []
+    return [], 0
