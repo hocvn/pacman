@@ -63,7 +63,7 @@ To get started with the project, follow these steps:
 
     Top-left corner:
     
-    > Current memory usage: 0.106881MB;
+    > Current memory usage: 0.106881MB
     > Peak: 0.113729MB
     > Time taken: 7.99 seconds
     > Expanded nodes: 104
@@ -90,6 +90,7 @@ To get started with the project, follow these steps:
     > Expanded nodes: 100
     
     Random position:
+    
     > Current memory usage: 0.106563MB
     > Peak: 0.113411MB
     > Time taken: 7.07 seconds
