@@ -58,3 +58,40 @@ To get started with the project, follow these steps:
     > Peak: 0.153022MB  
     > Time taken: 47.38 seconds  
     > Expanded nodes: 140
+
+    `Blue ghost:`
+
+    Top-left corner:
+    
+    > Current memory usage: 0.106881MB
+    > Peak: 0.113729MB
+    > Time taken: 7.99 seconds
+    > Expanded nodes: 104
+
+    Top-right corner:
+
+    > Current memory usage: 0.106563MB
+    > Peak: 0.113411MB
+    > Time taken: 8.01 seconds
+    > Expanded nodes: 103
+      
+    Bottom-left corner:
+
+    > Current memory usage: 0.106563MB
+    > Peak: 0.113411MB
+    > Time taken: 8.00 seconds
+    > Expanded nodes: 112
+
+    Bottom_right corner
+
+    > Current memory usage: 0.106563MB
+    > Peak: 0.113411MB
+    > Time taken: 7.99 seconds
+    > Expanded nodes: 100
+    
+    Random position:
+    
+    > Current memory usage: 0.106563MB
+    > Peak: 0.113411MB
+    > Time taken: 7.07 seconds
+    > Expanded nodes: 111
