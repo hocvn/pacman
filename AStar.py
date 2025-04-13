@@ -75,4 +75,3 @@ def ghost_astar_search(tiles, start, goal, danger_zones=None):
 
     return [], nodes_opened
 
-
