@@ -20,84 +20,8 @@ To get started with the project, follow these steps:
     git clone https://github.com/hocvn/pacman.git
     ```
 
-2.  The coordinates of ghosts in pacman game
-    write here..
 
-    `Pink ghost:`  
-    Top-left corner:
-
-    > Current memory usage: 0.146174MB;  
-    > Peak: 0.153022MB  
-    > Time taken: 33.29 seconds  
-    > Expanded nodes: 118
-
-    Top-right corner:
-
-    > Current memory usage: 0.146174MB;  
-    > Peak: 0.153022MB  
-    > Time taken: 46.45 seconds  
-    > Expanded nodes: 141
-
-    Bottom-left corner:
-
-    > Current memory usage: 0.146174MB  
-    > Peak: 0.153022MB  
-    > Time taken: 43.61 seconds  
-    > Expanded nodes: 194
-
-    Bottom-right corner:
-
-    > Current memory usage: 0.146616MB  
-    > Peak: 0.153464MB  
-    > Time taken: 52.04 seconds  
-    > Expanded nodes: 151
-
-    Random position:
-
-    > Current memory usage: 0.146174MB  
-    > Peak: 0.153022MB  
-    > Time taken: 47.38 seconds  
-    > Expanded nodes: 140
-
-    `Blue ghost:`
-
-    Top-left corner:
-    
-    > Current memory usage: 0.106881MB
-    > Peak: 0.113729MB
-    > Time taken: 7.99 seconds
-    > Expanded nodes: 104
-
-    Top-right corner:
-
-    > Current memory usage: 0.106563MB
-    > Peak: 0.113411MB
-    > Time taken: 8.01 seconds
-    > Expanded nodes: 103
-      
-    Bottom-left corner:
-
-    > Current memory usage: 0.106563MB
-    > Peak: 0.113411MB
-    > Time taken: 8.00 seconds
-    > Expanded nodes: 112
-
-    Bottom_right corner
-
-    > Current memory usage: 0.106563MB
-    > Peak: 0.113411MB
-    > Time taken: 7.99 seconds
-    > Expanded nodes: 100
-    
-    Random position:
-    
-    > Current memory usage: 0.106563MB
-    > Peak: 0.113411MB
-    > Time taken: 7.07 seconds
-    > Expanded nodes: 111
-
-
-# Record search time, memory usage, and number of expanded nodes.
+### Record search time, memory usage, and number of expanded nodes.
 `Pink Ghost - DFS`
 1. ghost: Top-left corner, pacman: Center of maze
  > Current memory usage: 0.183794MB
