@@ -22,6 +22,6 @@ def ghost_uniform_cost_search(start, goal, tiles, banned_position=None):
         x, y = current
         for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
             nx, ny = x + dx, y + dy
-            if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#' and (banned_position != (ny, nx) or current != start):
+            if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#' and (banned_position != (nx, ny) or current != start):
                 heapq.heappush(pq, (cost + 1, (nx, ny), path + [(nx, ny)]))
     return [], 0

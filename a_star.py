@@ -73,5 +73,4 @@ def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=No
                     f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
                     heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-
     return [], nodes_opened

@@ -26,7 +26,7 @@ def ghost_bfs_search(start, goal, tiles, banned_position=None):
         x, y = current
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Trái, Phải, Lên, Xuống
             nx, ny = x + dx, y + dy
-            if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#' and (nx, ny) not in visited and (banned_position != (ny, nx) or current != start):
+            if 0 <= ny < rows and 0 <= nx < cols and tiles[ny][nx] != '#' and (nx, ny) not in visited and (banned_position != (nx, ny) or current != start):
                 queue.append(((nx, ny), path + [(nx, ny)]))
                 max_queue_size = max(max_queue_size, len(queue))
 
