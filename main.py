@@ -113,11 +113,11 @@ class Ghost(pygame.sprite.Sprite):
             elif direction == Direction.DOWN: self.index = 6
             self.image = self.sprites[self.index]
 
-# pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
+pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
 # pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N - 2))
 # pacman = Pacman(GRID_SIZE * (N-2), GRID_SIZE * (N // 2))
 # pacman = Pacman(GRID_SIZE * (1), GRID_SIZE * (1))
-pacman = Pacman(GRID_SIZE * (N - 2), GRID_SIZE * (N-2))
+# pacman = Pacman(GRID_SIZE * (N - 2), GRID_SIZE * (N-2))
 
 
 
@@ -127,11 +127,11 @@ pacman = Pacman(GRID_SIZE * (N - 2), GRID_SIZE * (N-2))
 # Ghost(GRID_SIZE * 1, GRID_SIZE * 9, "red")
 
 ghosts = [
-    # Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
-    # Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "red"),               ## Pink ghost - top right
-    # Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "red"),              ## Blue ghost - bottom left
-    # Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "red")   ## Orange ghost - bottom right
-    Ghost(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2), "red")   ## Orange ghost - bottom right
+    Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
+    Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),               ## Pink ghost - top right
+    Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),              ## Blue ghost - bottom left
+    Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")   ## Orange ghost - bottom right
+    # Ghost(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2), "red")   ## Orange ghost - bottom right
 ]
 
 all_sprites = pygame.sprite.Group()
