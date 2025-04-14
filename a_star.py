@@ -40,7 +40,7 @@ def is_valid_ghost_position(pos, maze):
     x, y = pos
     return 0 <= x < len(maze) and 0 <= y < len(maze[0]) and maze[x][y] != '#'
 
-def ghost_astar_search(tiles, start, goal, danger_zones=None):
+def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=None):
 
     rows, cols = len(tiles), len(tiles[0])
     open_set = []
@@ -67,11 +67,11 @@ def ghost_astar_search(tiles, start, goal, danger_zones=None):
             neighbor = (x + dx, y + dy)
             if 0 <= neighbor[1] < rows and 0 <= neighbor[0] < cols and tiles[neighbor[1]][neighbor[0]] != "#":
                 tentative_g_score = g_score[current] + 1
-                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                if (neighbor not in g_score or tentative_g_score < g_score[neighbor]) and (banned_position != neighbor or current != start):
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
                     heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-    return [], nodes_opened
 
+    return [], nodes_opened
