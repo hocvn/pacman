@@ -17,16 +17,8 @@ def is_valid_ghost_position(pos, maze):
     x, y = pos
     return 0 <= x < len(maze) and 0 <= y < len(maze[0]) and maze[x][y] != '#'
 
-def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_assignments=None, 
-                            game_state=None, ghost_index=None):
+def heuristic(pos, target, danger_zones=None, weight=1, game_state=None, ghost_index=None):
 
-    if clauses and current_assignments is not None:
-        assumptions = current_assignments.copy()
-        move_var = pos[0] * 100 + pos[1]
-        assumptions.append(move_var)
-        
-        if not is_move_valid(clauses, assumptions):
-            return float('inf')
     
     # Tính khoảng cách cơ bản
     base_distance = abs(pos[0] - target[0]) + abs(pos[1] - target[1])
@@ -35,7 +27,6 @@ def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_as
     strategic_score = 0
     if game_state and ghost_index is not None:
         other_ghost_positions = game_state.get_ghost_positions()
-        print(f"Other ghost positions: {other_ghost_positions}")
         if len(other_ghost_positions) > 1:
             # Tính điểm cho việc phối hợp với ghost khác
             for i, other_pos in enumerate(other_ghost_positions):
@@ -52,7 +43,6 @@ def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_as
     return weight * base_distance + danger_penalty + strategic_score
 
 def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=None, 
-                       clauses=None, current_assignments=None, 
                        game_state=None, ghost_index=None, weight=1):
 
     rows, cols = len(tiles), len(tiles[0])
@@ -62,7 +52,6 @@ def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=No
     g_score = {start: 0}
     f_score = {start: heuristic(
         start, goal, danger_zones=danger_zones, weight=weight, 
-        clauses=clauses, current_assignments=current_assignments, 
         game_state=game_state, ghost_index=ghost_index
     )}
     nodes_opened = 0

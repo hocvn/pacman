@@ -190,8 +190,6 @@ def get_ghost_path(ghost, pacman_pos, start=None):
 
     # Define additional parameters for ghost_astar_search
     danger_zones = []  # Example: List of grid positions to avoid
-    clauses = None  # Example: Logical constraints (if applicable)
-    current_assignments = None  # Example: Current variable assignments
     game_state = GameState(ghosts) # Example: Game state (if applicable)
     ghost_index = 0  # Example: Index of the ghost in the ghosts list
     weight = 1  # Example: Weight for the heuristic function
@@ -199,8 +197,7 @@ def get_ghost_path(ghost, pacman_pos, start=None):
     if ghost.color == "red":
         path, expanded_nodes = ghost_astar_search(
             tiles, ghost_pos, pacman_pos, banned_position=banned_position,
-            danger_zones=danger_zones, clauses=clauses,
-            current_assignments=current_assignments, game_state=game_state,
+            danger_zones=danger_zones, game_state=game_state,
             ghost_index=ghost_index, weight=weight
         )
     elif ghost.color == "pink":
