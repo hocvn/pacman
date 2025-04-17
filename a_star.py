@@ -12,42 +12,68 @@ def is_move_valid(clauses, assumptions):
     return solution != 'UNSAT'
 
 
-def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_assignments=None):
-    """
-    Heuristic with SAT-checking:
-    - Rejects paths that lead to logic inconsistency.
-    """
-    assumptions = current_assignments.copy() if current_assignments else []
-
-    # Encode the next move as a propositional assignment (e.g., pos -> variable)
-    # For example, assume pos = (x=3, y=4) maps to variable id = 3 * N + 4
-    move_var = pos[0] * 100 + pos[1]  # Just an example encoding
-    assumptions.append(move_var)
-
-    # Use SAT solver to validate move
-    if clauses and not is_move_valid(clauses, assumptions):
-        return float('inf')  # Blocked by logic rule
-
-    # Otherwise, return normal heuristic
-    base_distance = abs(pos[0] - target[0]) + abs(pos[1] - target[1])
-    penalty = 0
-    if danger_zones and pos in danger_zones:
-        penalty = 10
-    return weight * base_distance + penalty
-
 def is_valid_ghost_position(pos, maze):
     """Check if the position is within bounds and not a wall."""
     x, y = pos
     return 0 <= x < len(maze) and 0 <= y < len(maze[0]) and maze[x][y] != '#'
 
-def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=None):
+def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_assignments=None, 
+                            game_state=None, ghost_index=None, ghost_scared=False):
+    """
+    Heuristic nâng cao cho ghost trong Pacman:
+    - Điều chỉnh chiến thuật dựa trên trạng thái trò chơi
+    - Xét cả vị trí chiến lược và trạng thái của ghost
+    """
+    if ghost_scared:
+        # Nếu ghost đang ở chế độ sợ hãi, tránh xa Pacman
+        base_distance = abs(pos[0] - target[0]) + abs(pos[1] - target[1])
+        return -base_distance  # Điểm số âm để ghost tránh xa Pacman
+    
+    # Kiểm tra SAT nếu cần
+    if clauses and current_assignments is not None:
+        assumptions = current_assignments.copy()
+        move_var = pos[0] * 100 + pos[1]
+        assumptions.append(move_var)
+        
+        if not is_move_valid(clauses, assumptions):
+            return float('inf')
+    
+    # Tính khoảng cách cơ bản
+    base_distance = abs(pos[0] - target[0]) + abs(pos[1] - target[1])
+    
+    # Tính điểm chiến lược
+    strategic_score = 0
+    if game_state and ghost_index is not None:
+        other_ghost_positions = game_state.get_ghost_positions()
+        if len(other_ghost_positions) > 1:
+            # Tính điểm cho việc phối hợp với ghost khác
+            for i, other_pos in enumerate(other_ghost_positions):
+                if i != ghost_index:
+                    # Ưu tiên ghost ở vị trí phù hợp để bao vây
+                    if abs(other_pos[0] - target[0]) + abs(other_pos[1] - target[1]) < 5:
+                        strategic_score -= 2  # Giảm điểm heuristic khi có thể bao vây
+    
+    # Xử lý vùng nguy hiểm
+    danger_penalty = 0
+    if danger_zones and pos in danger_zones:
+        danger_penalty = 10
+    
+    return weight * base_distance + danger_penalty + strategic_score
+
+def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=None, 
+                       clauses=None, current_assignments=None, 
+                       game_state=None, ghost_index=None, weight=1):
 
     rows, cols = len(tiles), len(tiles[0])
     open_set = []
     heapq.heappush(open_set, (0, start))
     came_from = {}
     g_score = {start: 0}
-    f_score = {start: heuristic(start, goal)}
+    f_score = {start: heuristic(
+        start, goal, danger_zones=danger_zones, weight=weight, 
+        clauses=clauses, current_assignments=current_assignments, 
+        game_state=game_state, ghost_index=ghost_index
+    )}
     nodes_opened = 0
 
     while open_set:
@@ -70,7 +96,14 @@ def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=No
                 if (neighbor not in g_score or tentative_g_score < g_score[neighbor]) and (banned_position != neighbor or current != start):
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
-                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
+
+                    f_score_neighbor = tentative_g_score + heuristic(
+                        neighbor, goal, danger_zones=danger_zones, weight=weight, 
+                        clauses=clauses, current_assignments=current_assignments, 
+                        game_state=game_state, ghost_index=ghost_index
+                    )
+
+                    f_score[neighbor] = f_score_neighbor
+                    heapq.heappush(open_set, (f_score_neighbor, neighbor))
 
     return [], nodes_opened
