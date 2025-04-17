@@ -32,6 +32,14 @@ def pixel_to_grid(x, y):
 def grid_to_pixel(x, y):
     return x * GRID_SIZE, y * GRID_SIZE
 
+class GameState:
+    def __init__(self, ghosts):
+        self.ghosts = ghosts  # Store the list of ghosts
+
+    def get_ghost_positions(self):
+        # Return the grid positions of all ghosts
+        return [pixel_to_grid(ghost.rect.x, ghost.rect.y) for ghost in self.ghosts]
+
 class Pacman(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -184,7 +192,7 @@ def get_ghost_path(ghost, pacman_pos, start=None):
     danger_zones = []  # Example: List of grid positions to avoid
     clauses = None  # Example: Logical constraints (if applicable)
     current_assignments = None  # Example: Current variable assignments
-    game_state = None  # Example: Current game state
+    game_state = GameState(ghosts) # Example: Game state (if applicable)
     ghost_index = 0  # Example: Index of the ghost in the ghosts list
     weight = 1  # Example: Weight for the heuristic function
 

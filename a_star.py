@@ -18,18 +18,8 @@ def is_valid_ghost_position(pos, maze):
     return 0 <= x < len(maze) and 0 <= y < len(maze[0]) and maze[x][y] != '#'
 
 def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_assignments=None, 
-                            game_state=None, ghost_index=None, ghost_scared=False):
-    """
-    Heuristic nâng cao cho ghost trong Pacman:
-    - Điều chỉnh chiến thuật dựa trên trạng thái trò chơi
-    - Xét cả vị trí chiến lược và trạng thái của ghost
-    """
-    if ghost_scared:
-        # Nếu ghost đang ở chế độ sợ hãi, tránh xa Pacman
-        base_distance = abs(pos[0] - target[0]) + abs(pos[1] - target[1])
-        return -base_distance  # Điểm số âm để ghost tránh xa Pacman
-    
-    # Kiểm tra SAT nếu cần
+                            game_state=None, ghost_index=None):
+
     if clauses and current_assignments is not None:
         assumptions = current_assignments.copy()
         move_var = pos[0] * 100 + pos[1]
@@ -45,6 +35,7 @@ def heuristic(pos, target, danger_zones=None, weight=1, clauses=None, current_as
     strategic_score = 0
     if game_state and ghost_index is not None:
         other_ghost_positions = game_state.get_ghost_positions()
+        print(f"Other ghost positions: {other_ghost_positions}")
         if len(other_ghost_positions) > 1:
             # Tính điểm cho việc phối hợp với ghost khác
             for i, other_pos in enumerate(other_ghost_positions):
