@@ -79,7 +79,6 @@ def ghost_astar_search(tiles, start, goal, banned_position=None, danger_zones=No
 
                     f_score_neighbor = tentative_g_score + heuristic(
                         neighbor, goal, danger_zones=danger_zones, weight=weight, 
-                        clauses=clauses, current_assignments=current_assignments, 
                         game_state=game_state, ghost_index=ghost_index
                     )
 
