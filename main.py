@@ -48,6 +48,14 @@ def pixel_to_grid(x, y):
 def grid_to_pixel(x, y):
     return x * GRID_SIZE, y * GRID_SIZE
 
+class GameState:
+    def __init__(self, ghosts):
+        self.ghosts = ghosts  # Store the list of ghosts
+
+    def get_ghost_positions(self):
+        # Return the grid positions of all ghosts
+        return [pixel_to_grid(ghost.rect.x, ghost.rect.y) for ghost in self.ghosts]
+
 class Pacman(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -177,12 +185,23 @@ def get_ghost_path(ghost, pacman_pos, start=None):
     if start is not None:
         ghost_pos = start
 
+    # Ghost should not move to the last position
     banned_position = ghost.banned_position
     if ghost.banned_position is None:
         banned_position = ghost.last_position
 
+    # Define additional parameters for ghost_astar_search
+    danger_zones = []  # Example: List of grid positions to avoid
+    game_state = GameState(ghosts) # Example: Game state (if applicable)
+    ghost_index = 0  # Example: Index of the ghost in the ghosts list
+    weight = 1  # Example: Weight for the heuristic function
+
     if ghost.color == "red":
-        path, expanded_nodes = ghost_astar_search(tiles, ghost_pos, pacman_pos, banned_position)
+        path, expanded_nodes = ghost_astar_search(
+            tiles, ghost_pos, pacman_pos, banned_position=banned_position,
+            danger_zones=danger_zones, game_state=game_state,
+            ghost_index=ghost_index, weight=weight
+        )
     elif ghost.color == "pink":
         path, expanded_nodes = ghost_dfs_search(ghost_pos, pacman_pos, tiles, banned_position)
     elif ghost.color == "blue":
@@ -252,16 +271,14 @@ class Menu:
         self.selected = 0
 
     def draw(self, screen):
-        # Draw background image
         screen.blit(menu_background, (0, 0))
-        # Draw buttons
+
         for i, option in enumerate(self.options):
-            # Draw rectangle with thick colored border and black fill
             button_rect = pygame.Rect(WIDTH // 2 - 60, HEIGHT // 2 + i * 60, 120, 50)
             border_color = GREEN if i == 0 and i == self.selected else RED if i == 1 and i == self.selected else WHITE
             pygame.draw.rect(screen, border_color, button_rect, 5, border_radius=5)  
-            pygame.draw.rect(screen, BLACK, button_rect.inflate(-20, -20), border_radius=3)  # Black fill
-            # Draw text
+            pygame.draw.rect(screen, BLACK, button_rect.inflate(-20, -20), border_radius=3)
+            
             color = GREEN if i == 0 and i == self.selected else RED if i == 1 and i == self.selected else WHITE
             text = button_font.render(option, True, color)
             text_rect = text.get_rect(center=button_rect.center)
@@ -293,28 +310,27 @@ class Menu:
                             return "exit"
         return None
 
-# Game loop
 running = True
 clock = pygame.time.Clock()
 game_state = "menu"
 wall_types = draw_grid.classify_wall(tiles)
 menu = Menu()
 loop = 0
-score = 0  # Initialize score
-music_playing = False  # Track menu music state
-game_music_playing = False  # Track game music state
-die_sound_played = False  # Track die sound state
+score = 0  
+music_playing = False  
+game_music_playing = False 
+die_sound_played = False 
 
 while running:
     if game_state == "menu":
         if not music_playing:
-            pygame.mixer.music.play(-1)  # Play menu music in loop
+            pygame.mixer.music.play(-1)  
             music_playing = True
         action = menu.handle_input()
         menu.draw(screen)
         pygame.display.flip()
         if action == "start":
-            pygame.mixer.music.stop()  # Stop menu music
+            pygame.mixer.music.stop()  
             music_playing = False
             reset_game()
             game_state = "playing"
@@ -322,13 +338,13 @@ while running:
             tracemalloc.start()
             loop = 0
         elif action == "exit":
-            pygame.mixer.music.stop()  # Stop menu music
+            pygame.mixer.music.stop()  
             music_playing = False
             running = False
 
     elif game_state == "playing":
         if not game_music_playing:
-            game_music.play(-1)  # Play game music in loop
+            game_music.play(-1)  
             game_music_playing = True
         screen.fill(BLACK)
         draw_grid.draw_grid(screen, tiles, wall_types)
@@ -356,7 +372,7 @@ while running:
         px, py = pixel_to_grid(pacman.rect.centerx, pacman.rect.centery)
         if (px, py) in dot_positions:
             dot_positions.remove((px, py))
-            score += DOT_SCORE  # Increase score when collecting a dot
+            score += DOT_SCORE  
 
         if loop % 3 == 0:
             pacman.update()
@@ -368,7 +384,6 @@ while running:
                 ghost.update()
 
         all_sprites.draw(screen)
-        # Draw score
         score_text = score_font.render(f"Score: {score}", True, WHITE)
         screen.blit(score_text, (10, 10))
         pygame.display.flip()
@@ -376,10 +391,10 @@ while running:
         if any(ghost.rect.colliderect(pacman.rect) or
                pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y)
                for ghost in ghosts):
-            game_music.stop()  # Stop game music
+            game_music.stop() 
             game_music_playing = False
             game_state = "game_over"
-            die_sound_played = False  # Reset die sound state
+            die_sound_played = False 
             current, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
             end_time = time.time()
@@ -387,7 +402,7 @@ while running:
 
     elif game_state == "game_over":
         if not die_sound_played:
-            pacman_die_sound.play()  # Play Pac-Man die sound once
+            pacman_die_sound.play()  
             die_sound_played = True
         screen.fill(BLACK)
         text = title_font.render('Game Over', True, YELLOW)
@@ -412,6 +427,6 @@ while running:
     loop = (loop + 1) % 3
     clock.tick(30)
 
-pygame.mixer.music.stop()  # Ensure menu music stops when quitting
-game_music.stop()  # Ensure game music stops when quitting
+pygame.mixer.music.stop()  
+game_music.stop()  
 pygame.quit()
