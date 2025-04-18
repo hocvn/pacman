@@ -4,27 +4,43 @@ import tracemalloc
 
 from dfs import ghost_dfs_search
 from ucs import ghost_uniform_cost_search
-from a_star import ghost_astar_search 
+from a_star import ghost_astar_search
 from bfs import ghost_bfs_search
 
 import draw_grid
-from config import N, GRID_SIZE, WIDTH, HEIGHT, CHARACTER_SIZE, Direction, tiles
+from config import N, GRID_SIZE, WIDTH, HEIGHT, CHARACTER_SIZE, Direction, tiles, DOT_SCORE
 
-# Initialize Pygame
+# Initialize Pygame and mixer
 pygame.init()
+pygame.mixer.init()
 
 # Screen settings
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pac-Man with 4 AI Ghosts")
 
 # Colors
-BLACK, GREEN, YELLOW = (0, 0, 0), (0, 128, 0), (255, 255, 0)
+BLACK, GREEN, YELLOW, WHITE, RED = (0, 0, 0), (0, 128, 0), (255, 255, 0), (255, 255, 255), (255, 0, 0)
+
+# Font for menu, game over, and score
+pygame.font.init()
+title_font = pygame.font.SysFont('Comic Sans MS', 60)
+button_font = pygame.font.SysFont('Comic Sans MS', 40)
+score_font = pygame.font.SysFont('Comic Sans MS', 30)
+title2_font = pygame.font.SysFont('Comic Sans MS', 35)
 
 pacman_dir = (0, 0)
 
 dot_img = pygame.image.load("./assets/dot.png")
 dot_img = pygame.transform.scale(dot_img, (CHARACTER_SIZE // 3, CHARACTER_SIZE // 3))
-dot_positions = set()
+
+# Load menu background
+menu_background = pygame.image.load("./assets/menu_background.png")
+menu_background = pygame.transform.scale(menu_background, (WIDTH, HEIGHT))
+
+# Load music and sound effects
+pygame.mixer.music.load("./assets/menu_music.mp3")  
+game_music = pygame.mixer.Sound("./assets/game_music.mp3") 
+pacman_die_sound = pygame.mixer.Sound("./assets/pacman_die.mp3")  
 
 def pixel_to_grid(x, y):
     return x // GRID_SIZE, y // GRID_SIZE
@@ -36,12 +52,12 @@ class Pacman(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.sprites = [
-            pygame.image.load("./assets/pacman-1.png"), 
-            pygame.image.load("./assets/pacman-2.png"), 
+            pygame.image.load("./assets/pacman-1.png"),
+            pygame.image.load("./assets/pacman-2.png"),
             pygame.image.load("./assets/pacman-3.png")
         ]
         self.sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.sprites]
-        self.image = self.sprites[0] 
+        self.image = self.sprites[0]
         self.rect = self.image.get_rect(topleft=(int(x), int(y)))
         self.index = 0
         self.angle = 0
@@ -85,7 +101,7 @@ class Ghost(pygame.sprite.Sprite):
         self.last_position = pixel_to_grid(x, y)
         self.expanded_nodes = 0
         self.banned_position = None
-        
+
     def update(self):
         if self.index % 2 == 0:
             self.index += 1
@@ -99,7 +115,6 @@ class Ghost(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
 
-        # If the ghost moves to a new grid cell, update the path and last position
         if pixel_to_grid(self.rect.x, self.rect.y) != pixel_to_grid(prev_position.x, prev_position.y):
             self.path.pop(0)
             self.last_position = pixel_to_grid(prev_position.x, prev_position.y)
@@ -114,24 +129,24 @@ class Ghost(pygame.sprite.Sprite):
             elif direction == Direction.DOWN: self.index = 6
             self.image = self.sprites[self.index]
 
-pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
-
-# Random position: Ghost(GRID_SIZE * (N - 6), GRID_SIZE * 3, "pink")
-#Random position: Ghost(GRID_SIZE * 1, GRID_SIZE * 9, "blue")
-ghosts = [
-    Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
-    Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),              ## Pink ghost - top right
-    Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),              ## Blue ghost - bottom left
-    Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")   ## Orange ghost - bottom right
-]
-
-all_sprites = pygame.sprite.Group()
-all_sprites.add(pacman, *ghosts)
-
-for y, row in enumerate(tiles):
-    for x, tile in enumerate(row):
-        if tile == " ":
-            dot_positions.add((x, y))
+def reset_game():
+    """Reset game state for a new game."""
+    global pacman, ghosts, all_sprites, dot_positions, score
+    pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
+    ghosts = [
+        Ghost(GRID_SIZE, GRID_SIZE, "red"),
+        Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),
+        Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),
+        Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")
+    ]
+    all_sprites = pygame.sprite.Group()
+    all_sprites.add(pacman, *ghosts)
+    dot_positions = set()
+    for y, row in enumerate(tiles):
+        for x, tile in enumerate(row):
+            if tile == " ":
+                dot_positions.add((x, y))
+    score = 0  # Reset score
 
 def check_collision(rect1, rect2):
     return rect1.colliderect(rect2)
@@ -139,7 +154,6 @@ def check_collision(rect1, rect2):
 def check_move_collision(rect, direction):
     next_position = rect.copy()
     dx, dy = direction.value
-
     next_position.x += dx
     next_position.y += dy
     return any(check_collision(next_position, pygame.Rect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
@@ -148,10 +162,8 @@ def check_move_collision(rect, direction):
 def check_ghost_collision(ghost, direction):
     next_position = ghost.rect.copy()
     dx, dy = direction.value
-    
     next_position.x += dx
     next_position.y += dy
-
     for other_ghost in ghosts:
         if other_ghost.color != ghost.color and check_collision(next_position, other_ghost.rect):
             return True
@@ -165,7 +177,6 @@ def get_ghost_path(ghost, pacman_pos, start=None):
     if start is not None:
         ghost_pos = start
 
-    # Ghost do not move to the last position
     banned_position = ghost.banned_position
     if ghost.banned_position is None:
         banned_position = ghost.last_position
@@ -203,14 +214,9 @@ def get_opposite_direction(direction):
         return Direction.UP
     return Direction.NONE
 
-# Function to move the ghost towards the next position in the path which is calculated by the algorithm
 def move_ghost(ghost, pacman_pos):
-
-    # if ghost.color != "pink":
-    #     return
-    
     if pacman.changed_position == True or len(ghost.path) < 2:
-       ghost.path, ghost.expanded_nodes = get_ghost_path(ghost, pacman_pos)
+        ghost.path, ghost.expanded_nodes = get_ghost_path(ghost, pacman_pos)
 
     if len(ghost.path) < 2:
         ghost.Move(ghost.direction)
@@ -226,114 +232,186 @@ def move_ghost(ghost, pacman_pos):
     if not check_move_collision(ghost.rect, get_direction(gx, gy, tx, ty)):
         direction = get_direction(gx, gy, tx, ty)
 
-    # Check ghost collide with other ghosts
     next_pos = pixel_to_grid(ghost.rect.x + direction.value[0], ghost.rect.y + direction.value[1])
 
     if check_ghost_collision(ghost, direction):
-        # If the ghost collides with another ghost, find the other path
         ghost.banned_position = next_pos
-
         if next_pos != current_pos:
-            ghost.path, ghost.expanded_nodes = get_ghost_path(ghost, pacman_pos, start=current_pos)
+            ghost.path, expanded_nodes = get_ghost_path(ghost, pacman_pos, start=current_pos)
         else:
-            ghost.path, ghost.expanded_nodes = get_ghost_path(ghost, pacman_pos, start=ghost.last_position)
+            ghost.path, expanded_nodes = get_ghost_path(ghost, pacman_pos, start=ghost.last_position)
             ghost.path.insert(0, current_pos)
-
         ghost.last_position = ghost.banned_position
         direction = get_opposite_direction(ghost.direction)
     ghost.Move(direction)
 
-wall_types = draw_grid.classify_wall(tiles)
+# Menu handling
+class Menu:
+    def __init__(self):
+        self.options = ["Start", "Exit"]
+        self.selected = 0
 
+    def draw(self, screen):
+        # Draw background image
+        screen.blit(menu_background, (0, 0))
+        # Draw buttons
+        for i, option in enumerate(self.options):
+            # Draw rectangle with thick colored border and black fill
+            button_rect = pygame.Rect(WIDTH // 2 - 60, HEIGHT // 2 + i * 60, 120, 50)
+            border_color = GREEN if i == 0 and i == self.selected else RED if i == 1 and i == self.selected else WHITE
+            pygame.draw.rect(screen, border_color, button_rect, 5, border_radius=5)  
+            pygame.draw.rect(screen, BLACK, button_rect.inflate(-20, -20), border_radius=3)  # Black fill
+            # Draw text
+            color = GREEN if i == 0 and i == self.selected else RED if i == 1 and i == self.selected else WHITE
+            text = button_font.render(option, True, color)
+            text_rect = text.get_rect(center=button_rect.center)
+            screen.blit(text, text_rect)
+
+    def handle_input(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "exit"
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    self.selected = (self.selected - 1) % len(self.options)
+                elif event.key == pygame.K_DOWN:
+                    self.selected = (self.selected + 1) % len(self.options)
+                elif event.key == pygame.K_RETURN:
+                    if self.selected == 0:
+                        return "start"
+                    elif self.selected == 1:
+                        return "exit"
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, option in enumerate(self.options):
+                    button_rect = pygame.Rect(WIDTH // 2 - 75, HEIGHT // 2 + i * 60, 150, 50)
+                    if button_rect.collidepoint(mouse_pos):
+                        self.selected = i
+                        if i == 0:
+                            return "start"
+                        elif i == 1:
+                            return "exit"
+        return None
+
+# Game loop
 running = True
 clock = pygame.time.Clock()
+game_state = "menu"
+wall_types = draw_grid.classify_wall(tiles)
+menu = Menu()
 loop = 0
-
-start_time = time.time()
-tracemalloc.start()
-
+score = 0  # Initialize score
+music_playing = False  # Track menu music state
+game_music_playing = False  # Track game music state
+die_sound_played = False  # Track die sound state
 
 while running:
-    # Clear the screen
-    screen.fill(BLACK)
-
-    # Draw the grid
-    draw_grid.draw_grid(screen, tiles, wall_types)
-
-    # Draw the dots
-    for dx, dy in dot_positions:
-        screen.blit(dot_img, (dx * GRID_SIZE + GRID_SIZE // 4, dy * GRID_SIZE + GRID_SIZE // 4))
-
-    # Key press event handling
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    if game_state == "menu":
+        if not music_playing:
+            pygame.mixer.music.play(-1)  # Play menu music in loop
+            music_playing = True
+        action = menu.handle_input()
+        menu.draw(screen)
+        pygame.display.flip()
+        if action == "start":
+            pygame.mixer.music.stop()  # Stop menu music
+            music_playing = False
+            reset_game()
+            game_state = "playing"
+            start_time = time.time()
+            tracemalloc.start()
+            loop = 0
+        elif action == "exit":
+            pygame.mixer.music.stop()  # Stop menu music
+            music_playing = False
             running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT: pacman.next_direction = Direction.RIGHT
-            elif event.key == pygame.K_LEFT: pacman.next_direction = Direction.LEFT
-            elif event.key == pygame.K_UP: pacman.next_direction = Direction.UP
-            elif event.key == pygame.K_DOWN: pacman.next_direction = Direction.DOWN
 
-    # Pacman movement
-    if pacman.next_direction != Direction.NONE and not check_move_collision(pacman.rect, pacman.next_direction):
-        pacman_dir = pacman.next_direction.value
-        pacman.direction = pacman.next_direction
+    elif game_state == "playing":
+        if not game_music_playing:
+            game_music.play(-1)  # Play game music in loop
+            game_music_playing = True
+        screen.fill(BLACK)
+        draw_grid.draw_grid(screen, tiles, wall_types)
+        for dx, dy in dot_positions:
+            screen.blit(dot_img, (dx * GRID_SIZE + GRID_SIZE // 4, dy * GRID_SIZE + GRID_SIZE // 4))
 
-    if pacman.direction != Direction.NONE and not check_move_collision(pacman.rect, pacman.direction):
-        pacman.Move(pacman.direction)
-    else:
-        pacman.changed_position = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT: pacman.next_direction = Direction.RIGHT
+                elif event.key == pygame.K_LEFT: pacman.next_direction = Direction.LEFT
+                elif event.key == pygame.K_UP: pacman.next_direction = Direction.UP
+                elif event.key == pygame.K_DOWN: pacman.next_direction = Direction.DOWN
 
-    px, py = pixel_to_grid(pacman.rect.centerx, pacman.rect.centery)
-    if (px, py) in dot_positions:
-        dot_positions.remove((px, py))
+        if pacman.next_direction != Direction.NONE and not check_move_collision(pacman.rect, pacman.next_direction):
+            pacman_dir = pacman.next_direction.value
+            pacman.direction = pacman.next_direction
 
-    if loop % 3 == 0: 
-        pacman.update()
-    
-    # Ghost movement
-    pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
+        if pacman.direction != Direction.NONE and not check_move_collision(pacman.rect, pacman.direction):
+            pacman.Move(pacman.direction)
+        else:
+            pacman.changed_position = False
 
-    for ghost in ghosts:
-        move_ghost(ghost, pacman_pos)
+        px, py = pixel_to_grid(pacman.rect.centerx, pacman.rect.centery)
+        if (px, py) in dot_positions:
+            dot_positions.remove((px, py))
+            score += DOT_SCORE  # Increase score when collecting a dot
+
         if loop % 3 == 0:
-            ghost.update()
+            pacman.update()
 
-    all_sprites.draw(screen)
-    pygame.display.flip()
+        pacman_pos = pixel_to_grid(pacman.rect.x, pacman.rect.y)
+        for ghost in ghosts:
+            move_ghost(ghost, pacman_pos)
+            if loop % 3 == 0:
+                ghost.update()
 
-    # Check pacman collide with ghost
-    if any(ghost.rect.colliderect(pacman.rect) or
-        pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y)
-        for ghost in ghosts):
-            running = False
-            pygame.font.init()
-            font = pygame.font.SysFont('Comic Sans MS', 50)
-            text = font.render('Game Over', True, YELLOW)
-            screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height()))
-            text = font.render('Press any key to exit', True, GREEN)
-            screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
-            pygame.display.flip()
+        all_sprites.draw(screen)
+        # Draw score
+        score_text = score_font.render(f"Score: {score}", True, WHITE)
+        screen.blit(score_text, (10, 10))
+        pygame.display.flip()
 
-            # Capture memory usage and time taken
+        if any(ghost.rect.colliderect(pacman.rect) or
+               pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y)
+               for ghost in ghosts):
+            game_music.stop()  # Stop game music
+            game_music_playing = False
+            game_state = "game_over"
+            die_sound_played = False  # Reset die sound state
             current, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
-            print(f"Current memory usage: {current / 10**6}MB")
-            print(f"Peak: {peak / 10**6}MB")
             end_time = time.time()
             search_time = end_time - start_time
-            print(f"Time taken: {search_time:.2f} seconds")
-            print(f"Expanded nodes: {ghosts[1].expanded_nodes}")
-            
-            waiting = True
-            while waiting:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        waiting = False
-                    elif event.type == pygame.KEYDOWN:
-                        waiting = False
 
-    loop = (1 + loop) % 3
+    elif game_state == "game_over":
+        if not die_sound_played:
+            pacman_die_sound.play()  # Play Pac-Man die sound once
+            die_sound_played = True
+        screen.fill(BLACK)
+        text = title_font.render('Game Over', True, YELLOW)
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() * 2))
+        score_text = score_font.render(f"Final Score: {score}", True, WHITE)
+        screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 - text.get_height()))
+        text = title2_font.render('Press any key to return to menu', True, GREEN)
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                print(f"Current memory usage: {current / 10**6}MB")
+                print(f"Peak: {peak / 10**6}MB")
+                print(f"Time taken: {search_time:.2f} seconds")
+                for ghost in ghosts:
+                    print(f"{ghost.color.capitalize()} Ghost expanded nodes: {ghost.expanded_nodes}")
+                game_state = "menu"
+
+    loop = (loop + 1) % 3
     clock.tick(30)
 
+pygame.mixer.music.stop()  # Ensure menu music stops when quitting
+game_music.stop()  # Ensure game music stops when quitting
 pygame.quit()
