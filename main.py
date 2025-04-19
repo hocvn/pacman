@@ -122,10 +122,10 @@ class Ghost(pygame.sprite.Sprite):
             elif direction == Direction.DOWN: self.index = 6
             self.image = self.sprites[self.index]
 
-pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
+# pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
 # pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N - 2))
 # pacman = Pacman(GRID_SIZE * (N-2), GRID_SIZE * (N // 2))
-# pacman = Pacman(GRID_SIZE * (1), GRID_SIZE * (1))
+pacman = Pacman(GRID_SIZE * (1), GRID_SIZE * (1))
 # pacman = Pacman(GRID_SIZE * (N - 2), GRID_SIZE * (N-2))
 
 
@@ -136,9 +136,9 @@ pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
 # Ghost(GRID_SIZE * 1, GRID_SIZE * 9, "red")
 
 ghosts = [
-    Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
-    Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),               ## Pink ghost - top right
-    Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),              ## Blue ghost - bottom left
+    # Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
+    # Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),               ## Pink ghost - top right
+    # Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),              ## Blue ghost - bottom left
     Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")   ## Orange ghost - bottom right
     # Ghost(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2), "red")   ## Orange ghost - bottom right
 ]
@@ -326,6 +326,16 @@ while running:
         move_ghost(ghost, pacman_pos)
         if loop % 3 == 0:
             ghost.update()
+
+    # Highlight đường đi của ghost
+    for ghost in ghosts:
+        if len(ghost.path) > 1:
+            for i in range(len(ghost.path) - 1):
+                start_pixel = grid_to_pixel(*ghost.path[i])
+                end_pixel = grid_to_pixel(*ghost.path[i + 1])
+                pygame.draw.line(screen, (255, 0, 0), 
+                                (start_pixel[0] + GRID_SIZE // 2, start_pixel[1] + GRID_SIZE // 2),
+                                (end_pixel[0] + GRID_SIZE // 2, end_pixel[1] + GRID_SIZE // 2), 2)
 
     all_sprites.draw(screen)
     pygame.display.flip()
