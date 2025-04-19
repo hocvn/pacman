@@ -142,10 +142,10 @@ def reset_game():
     global pacman, ghosts, all_sprites, dot_positions, score
     pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
     ghosts = [
-        Ghost(GRID_SIZE, GRID_SIZE, "red"),
-        Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),
-        Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),
-        Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")
+        Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
+        Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),               ## Pink ghost - top right
+        Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),              ## Blue ghost - bottom left
+        Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")   ## Orange ghost - bottom right
     ]
     all_sprites = pygame.sprite.Group()
     all_sprites.add(pacman, *ghosts)
