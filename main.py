@@ -25,7 +25,7 @@ BLACK, GREEN, YELLOW, WHITE, RED = (0, 0, 0), (0, 128, 0), (255, 255, 0), (255, 
 pygame.font.init()
 title_font = pygame.font.SysFont('Comic Sans MS', 60)
 button_font = pygame.font.SysFont('Comic Sans MS', 40)
-score_font = pygame.font.SysFont('Comic Sans MS', 30)
+score_font = pygame.font.SysFont('Comic Sans MS', 20)
 title2_font = pygame.font.SysFont('Comic Sans MS', 35)
 
 pacman_dir = (0, 0)
@@ -140,11 +140,11 @@ class Ghost(pygame.sprite.Sprite):
 def reset_game():
     """Reset game state for a new game."""
     global pacman, ghosts, all_sprites, dot_positions, score
-    pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
+    pacman = Pacman(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2))
     ghosts = [
         Ghost(GRID_SIZE, GRID_SIZE, "red"),
         Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),
-        Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),
+        Ghost(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2), "blue"),
         Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")
     ]
     all_sprites = pygame.sprite.Group()
@@ -385,7 +385,7 @@ while running:
 
         all_sprites.draw(screen)
         score_text = score_font.render(f"Score: {score}", True, WHITE)
-        screen.blit(score_text, (10, 10))
+        screen.blit(score_text, (WIDTH - score_text.get_width() - 5, HEIGHT - score_text.get_height() - 5))
         pygame.display.flip()
 
         if any(ghost.rect.colliderect(pacman.rect) or
