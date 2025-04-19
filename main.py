@@ -140,12 +140,12 @@ class Ghost(pygame.sprite.Sprite):
 def reset_game():
     """Reset game state for a new game."""
     global pacman, ghosts, all_sprites, dot_positions, score
-    pacman = Pacman(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2))
+    pacman = Pacman(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2))
     ghosts = [
-        Ghost(GRID_SIZE, GRID_SIZE, "red"),
-        Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),
-        Ghost(GRID_SIZE * (N // 2), GRID_SIZE * (N // 2), "blue"),
-        Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")
+        Ghost(GRID_SIZE, GRID_SIZE, "red"),                         ## Red ghost - top left
+        Ghost(GRID_SIZE * (N - 2), GRID_SIZE, "pink"),               ## Pink ghost - top right
+        Ghost(GRID_SIZE, GRID_SIZE * (N - 2), "blue"),              ## Blue ghost - bottom left
+        Ghost(GRID_SIZE * (N - 2), GRID_SIZE * (N - 2), "orange")   ## Orange ghost - bottom right
     ]
     all_sprites = pygame.sprite.Group()
     all_sprites.add(pacman, *ghosts)
@@ -388,17 +388,23 @@ while running:
         screen.blit(score_text, (WIDTH - score_text.get_width() - 5, HEIGHT - score_text.get_height() - 5))
         pygame.display.flip()
 
-        if any(ghost.rect.colliderect(pacman.rect) or
-               pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y)
-               for ghost in ghosts):
-            game_music.stop() 
-            game_music_playing = False
-            game_state = "game_over"
-            die_sound_played = False 
-            current, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-            end_time = time.time()
-            search_time = end_time - start_time
+        for ghost in ghosts:
+            if ghost.rect.colliderect(pacman.rect) or pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y):
+                game_music.stop() 
+                game_music_playing = False
+                game_state = "game_over"
+                die_sound_played = False 
+                current, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+                end_time = time.time()
+                search_time = end_time - start_time
+
+                # Print the memory usage and time taken for the search
+                print("\n")
+                print(f"{ghost.color.capitalize()} ghost has caught Pacman!")
+                print(f"Current memory usage: {current / 10**6}MB")
+                print(f"Peak: {peak / 10**6}MB")
+                print(f"Time taken: {search_time:.2f} seconds")
 
     elif game_state == "game_over":
         if not die_sound_played:
@@ -417,9 +423,6 @@ while running:
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                print(f"Current memory usage: {current / 10**6}MB")
-                print(f"Peak: {peak / 10**6}MB")
-                print(f"Time taken: {search_time:.2f} seconds")
                 for ghost in ghosts:
                     print(f"{ghost.color.capitalize()} Ghost expanded nodes: {ghost.expanded_nodes}")
                 game_state = "menu"
