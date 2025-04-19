@@ -1,149 +1,77 @@
-# Pacman
+# Pacman AI Ghost Pathfinding Report
 
-## Description
+## 📌 Project Overview
 
-Pacman is a project that implements a simple game inspired by the classic Pacman. This repository contains the source code, assets, and documentation needed to use and extend the project.
+This project implements various search algorithms (DFS, BFS, UCS, A*) to control ghost movement in a Pacman-style game. The ghosts are programmed to chase Pacman based on different pathfinding strategies, and we evaluate their performance across multiple dimensions.
 
-## Features
+---
 
-- Classic Pacman gameplay
-- Customizable levels and characters
-- Multiplayer support
+## 📋 1. Project Planning and Task Assignment (5 points)
 
-## Installation
+Each group member was assigned specific responsibilities as listed below. Completion percentage reflects the contribution to the final report and implementation.
 
-To get started with the project, follow these steps:
+| Member Name | Responsibility                                 | Completion % | Individual Score (out of 9.0) |
+|-------------|-------------------------------------------------|--------------|-------------------------------|
+| A           | DFS Algorithm + Evaluation                      | 90%          | 9.0 * 90% = **8.1**           |
+| B           | UCS + A* Algorithm, Charts and Visualization    | 100%         | 9.0 * 100% = **9.0**          |
+| C           | BFS Algorithm + Memory Profiling                | 80%          | 9.0 * 80% = **7.2**           |
+| D           | Integration + PDF Report and README Formatting  | 95%          | 9.0 * 95% = **8.55**          |
 
-1.  Clone the repository:
+---
 
-    ```bash
-    git clone https://github.com/hocvn/pacman.git
-    ```
+## 🧠 2. Algorithm Description (10 points)
 
+### Depth-First Search (DFS)
+- Explores as far as possible along each branch before backtracking.
+- Implemented using a stack (LIFO).
+- Not guaranteed to find the shortest path.
 
-### Record search time, memory usage, and number of expanded nodes.
-`Pink Ghost - DFS`
-1. ghost: Top-left corner, pacman: Center of maze
- > Current memory usage: 0.183794MB
- > Peak: 0.394721MB
- > Time taken: 32.92 seconds
- > Expanded nodes: 118
+### Breadth-First Search (BFS)
+- Explores all neighbors at the present depth prior to moving on to nodes at the next depth level.
+- Implemented using a queue (FIFO).
+- Guaranteed to find the shortest path (unweighted).
 
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.178122MB
->Peak: 0.388914MB
->Time taken: 46.38 seconds
->Expanded nodes: 173
+### Uniform Cost Search (UCS)
+- Expands the node with the lowest total cost from the start node.
+- Implements a priority queue with path cost as priority.
+- Optimal for graphs with varying edge costs.
 
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.178122MB
->Peak: 0.388914MB
->Time taken: 46.38 seconds
->Expanded nodes: 173
+### A* Search
+- Combines UCS with heuristics to guide the search.
+- Priority = Cost so far + Heuristic estimate to goal.
+- More efficient than UCS if the heuristic is admissible.
 
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.181949MB
->Peak: 0.392876MB
->Time taken: 43.13 seconds
->Expanded nodes: 185
+---
 
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.179742MB
->Peak: 0.390669MB
->Time taken: 44.95 seconds
->Expanded nodes: 173
+## 🔬 3. Experiments & Evaluation (15 points)
 
-`Blue Ghost - BFS`
-1. ghost: Top-left corner, pacman: Center of maze
->Current memory usage: 0.188382MB
->Peak: 0.399309MB
->Time taken: 7.91 seconds
->Expanded nodes: 104
+We evaluated each algorithm based on:
+- ⏱️ **Search Time**
+- 💾 **Memory Usage**
+- 🔄 **Number of Expanded Nodes**
 
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.179135MB
->Peak: 0.389927MB
->Time taken: 12.08 seconds
->Expanded nodes: 208
+### Sample Test Case: Pink Ghost (DFS)
+- Start: Top-left corner, Pacman: Center of Maze  
+  > Memory usage: 0.183 MB (current), 0.395 MB (peak)  
+  > Time taken: 32.92 seconds  
+  > Expanded nodes: 118  
 
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.182488MB
->Peak: 0.393415MB
->Time taken: 13.92 seconds
->Expanded nodes: 225
+- Start: Top-right corner, Pacman: Center-bottom  
+  > Memory usage: 0.178 MB (current), 0.389 MB (peak)  
+  > Time taken: 46.38 seconds  
+  > Expanded nodes: 173  
 
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.179675MB
->Peak: 0.390512MB
->Time taken: 16.24 seconds
->Expanded nodes: 247
+### Visualization
 
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.182082MB
->Peak: 0.392964MB
->Time taken: 7.91 seconds
->Expanded nodes: 238
+_Refer to the final PDF report for charts and visual comparison of the metrics across all algorithms._
 
+---
 
-`Orange Ghost - UCS`
-1. ghost: Top-left corner, pacman: Center of maze
->Current memory usage: 0.187842MB
->Peak: 0.398769MB
->Time taken: 7.91 seconds
->Expanded nodes: 199
+## 📚 4. References
 
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.181891MB
->Peak: 0.392773MB
->Time taken: 12.08 seconds
->Expanded nodes: 407
+- [1] Artificial Intelligence: A Modern Approach - Russell & Norvig  
+- [2] Pygame Documentation  
+- [3] Python `heapq` and `collections.deque` modules  
+- [4] tracemalloc — Track memory allocations in Python
 
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.184186MB
->Peak: 0.395158MB
->Time taken: 14.03 seconds
->Expanded nodes: 452
-
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.181036MB
->Peak: 0.391918MB
->Time taken: 16.25 seconds
->Expanded nodes: 490
-
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.178355MB
->Peak: 0.389147MB
->Time taken: 7.91 seconds
->Expanded nodes: 467
-
-
-`Red Ghost - A*`
-1. ghost: Top-left corner, pacman: Center of maze
->Current memory usage: 0.186357MB
->Peak: 0.397284MB
->Time taken: 7.89 seconds
->Expanded nodes: 42
-
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.183209MB
->Peak: 0.394181MB
->Time taken: 12.07 seconds
->Expanded nodes: 74
-
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.179069MB
->Peak: 0.389906MB
->Time taken: 13.91 seconds
->Expanded nodes: 142
-
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.183659MB
->Peak: 0.394586MB
->Time taken: 16.25 seconds
->Expanded nodes: 65
-
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.179157MB
->Peak: 0.390039MB
->Time taken: 7.90 seconds
->Expanded nodes: 42
+---
