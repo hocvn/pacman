@@ -25,7 +25,7 @@ BLACK, GREEN, YELLOW, WHITE, RED = (0, 0, 0), (0, 128, 0), (255, 255, 0), (255, 
 pygame.font.init()
 title_font = pygame.font.SysFont('Comic Sans MS', 60)
 button_font = pygame.font.SysFont('Comic Sans MS', 40)
-score_font = pygame.font.SysFont('Comic Sans MS', 30)
+score_font = pygame.font.SysFont('Comic Sans MS', 20)
 title2_font = pygame.font.SysFont('Comic Sans MS', 35)
 
 pacman_dir = (0, 0)
@@ -385,20 +385,26 @@ while running:
 
         all_sprites.draw(screen)
         score_text = score_font.render(f"Score: {score}", True, WHITE)
-        screen.blit(score_text, (10, 10))
+        screen.blit(score_text, (WIDTH - score_text.get_width() - 5, HEIGHT - score_text.get_height() - 5))
         pygame.display.flip()
 
-        if any(ghost.rect.colliderect(pacman.rect) or
-               pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y)
-               for ghost in ghosts):
-            game_music.stop() 
-            game_music_playing = False
-            game_state = "game_over"
-            die_sound_played = False 
-            current, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-            end_time = time.time()
-            search_time = end_time - start_time
+        for ghost in ghosts:
+            if ghost.rect.colliderect(pacman.rect) or pixel_to_grid(ghost.rect.x, ghost.rect.y) == pixel_to_grid(pacman.rect.x, pacman.rect.y):
+                game_music.stop() 
+                game_music_playing = False
+                game_state = "game_over"
+                die_sound_played = False 
+                current, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+                end_time = time.time()
+                search_time = end_time - start_time
+
+                # Print the memory usage and time taken for the search
+                print("\n")
+                print(f"{ghost.color.capitalize()} ghost has caught Pacman!")
+                print(f"Current memory usage: {current / 10**6}MB")
+                print(f"Peak: {peak / 10**6}MB")
+                print(f"Time taken: {search_time:.2f} seconds")
 
     elif game_state == "game_over":
         if not die_sound_played:
@@ -417,9 +423,6 @@ while running:
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                print(f"Current memory usage: {current / 10**6}MB")
-                print(f"Peak: {peak / 10**6}MB")
-                print(f"Time taken: {search_time:.2f} seconds")
                 for ghost in ghosts:
                     print(f"{ghost.color.capitalize()} Ghost expanded nodes: {ghost.expanded_nodes}")
                 game_state = "menu"
