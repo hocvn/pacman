@@ -43,12 +43,12 @@ Each member was assigned specific tasks, and all members achieved full task comp
 
 ---
 
-## 🔬 3. Experiments & Evaluation (15 points)
+##  3. Experiments & Evaluation (15 points)
 
 Search performance was evaluated based on:
-- Search Time (seconds)
-- Memory Usage (MB)
-- Number of Expanded Nodes
+-  Search Time (seconds)
+-  Memory Usage (MB)
+-  Number of Expanded Nodes
 
 ### Record of Search Time, Memory Usage, and Expanded Nodes
 
@@ -103,4 +103,15 @@ Search performance was evaluated based on:
 
 ---
 
-📄 _A full PDF report with charts and diagrams is included separately._
+##  5. Installation & How to Run the Program
+
+###  Requirements
+
+- Python 3.10+
+- Pygame
+- Tracemalloc (built-in)
+- Các thư viện chuẩn như `heapq`, `deque`, `time`, v.v.
+
+Cài đặt thư viện cần thiết bằng pip:
+```bash
+pip install pygame
