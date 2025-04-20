@@ -1,149 +1,74 @@
-# Pacman
+##  Project Planning and Task Assignment 
 
-## Description
+Each member was assigned specific tasks, and all members achieved full task completion.
 
-Pacman is a project that implements a simple game inspired by the classic Pacman. This repository contains the source code, assets, and documentation needed to use and extend the project.
+| MSSV      | Name              | Assigned Task                                                                 | Completion  |
+|-----------|-------------------|------------------------------------------------------------------------------|--------------|
+| 22120050  | Hồ Mạnh Đào       | UCS implementation, Update README file                                      | 100%         |                       
+| 22120113  | Nguyễn Việt Hoàng | BFS implementation, Game Menu, Scoring, Time & Memory Analysis              | 100%         |                       
+| 22120115  | Đỗ Thái Học       | DFS implementation, Game UI, Time & Memory Analysis, Video Recording        | 100%         |                       
+| 22120418  | Huỳnh Trần Ty     | A* implementation, Time & Memory Analysis, Graphs and Final Report Writing  | 100%         |                      
 
-## Features
+---
 
-- Classic Pacman gameplay
-- Customizable levels and characters
-- Multiplayer support
+#  Hướng Dẫn Chạy Chương Trình Pacman
 
-## Installation
+##  Yêu Cầu Hệ Thống
 
-To get started with the project, follow these steps:
+- Python 3.10 trở lên
+- Thư viện `pygame`
+- Các thư viện chuẩn: `heapq`, `deque`, `tracemalloc`, `time`, v.v.
 
-1.  Clone the repository:
+###  Cài Đặt Thư Viện
 
-    ```bash
-    git clone https://github.com/hocvn/pacman.git
-    ```
+Chạy lệnh sau trong terminal để cài đặt tất cả thư viện:
 
+```bash
+pip install -r requirements.txt
+```
 
-### Record search time, memory usage, and number of expanded nodes.
-`Pink Ghost - DFS`
-1. ghost: Top-left corner, pacman: Center of maze
- > Current memory usage: 0.183794MB
- > Peak: 0.394721MB
- > Time taken: 32.92 seconds
- > Expanded nodes: 118
+---
 
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.178122MB
->Peak: 0.388914MB
->Time taken: 46.38 seconds
->Expanded nodes: 173
+##  Cách Chạy Chương Trình
 
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.178122MB
->Peak: 0.388914MB
->Time taken: 46.38 seconds
->Expanded nodes: 173
+### Bước 1: Tải mã nguồn
 
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.181949MB
->Peak: 0.392876MB
->Time taken: 43.13 seconds
->Expanded nodes: 185
+Clone từ GitHub hoặc tải về máy:
 
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.179742MB
->Peak: 0.390669MB
->Time taken: 44.95 seconds
->Expanded nodes: 173
+```bash
+git clone https://github.com/your-username/pacman-ai.git
+cd pacman-ai
+```
 
-`Blue Ghost - BFS`
-1. ghost: Top-left corner, pacman: Center of maze
->Current memory usage: 0.188382MB
->Peak: 0.399309MB
->Time taken: 7.91 seconds
->Expanded nodes: 104
+*(Thay link bằng link repo của bạn nếu có)*
 
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.179135MB
->Peak: 0.389927MB
->Time taken: 12.08 seconds
->Expanded nodes: 208
+### Bước 2: Chạy chương trình
 
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.182488MB
->Peak: 0.393415MB
->Time taken: 13.92 seconds
->Expanded nodes: 225
+Chạy file chính của game:
 
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.179675MB
->Peak: 0.390512MB
->Time taken: 16.24 seconds
->Expanded nodes: 247
+```bash
+python main.py
+```
 
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.182082MB
->Peak: 0.392964MB
->Time taken: 7.91 seconds
->Expanded nodes: 238
+---
 
+## Cách Chơi
 
-`Orange Ghost - UCS`
-1. ghost: Top-left corner, pacman: Center of maze
->Current memory usage: 0.187842MB
->Peak: 0.398769MB
->Time taken: 7.91 seconds
->Expanded nodes: 199
+- Khi khởi động, trò chơi sẽ tự hiển thị cửa sổ.
+- Mỗi con ma sử dụng một thuật toán tìm đường khác nhau (DFS, BFS, UCS, A*).
+- Pacman di chuyển ngẫu nhiên hoặc theo lập trình.
+- Quan sát hành vi di chuyển và kết quả tìm kiếm được in ra **console**:  
+  -  Thời gian tìm kiếm  
+  -  Dung lượng bộ nhớ sử dụng  
+  -  Số lượng nút mở rộng
 
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.181891MB
->Peak: 0.392773MB
->Time taken: 12.08 seconds
->Expanded nodes: 407
+---
 
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.184186MB
->Peak: 0.395158MB
->Time taken: 14.03 seconds
->Expanded nodes: 452
+##  Ghi Chú Thêm
 
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.181036MB
->Peak: 0.391918MB
->Time taken: 16.25 seconds
->Expanded nodes: 490
+- Bạn có thể chỉnh sửa vị trí bắt đầu của ghost và pacman trong code để thực hiện các thí nghiệm khác nhau.
+- Nếu muốn kiểm tra riêng từng thuật toán, chỉnh sửa phần gọi hàm tương ứng trong `main.py`.
 
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.178355MB
->Peak: 0.389147MB
->Time taken: 7.91 seconds
->Expanded nodes: 467
+---
 
-
-`Red Ghost - A*`
-1. ghost: Top-left corner, pacman: Center of maze
->Current memory usage: 0.186357MB
->Peak: 0.397284MB
->Time taken: 7.89 seconds
->Expanded nodes: 42
-
-2. ghost: Top-right corner, pacman: Center-bottom of maze
->Current memory usage: 0.183209MB
->Peak: 0.394181MB
->Time taken: 12.07 seconds
->Expanded nodes: 74
-
-3. ghost: bottom-left, pacman:  right-center of maze
->Current memory usage: 0.179069MB
->Peak: 0.389906MB
->Time taken: 13.91 seconds
->Expanded nodes: 142
-
-4. ghost: bottom-right, pacman:  left-top of maze
->Current memory usage: 0.183659MB
->Peak: 0.394586MB
->Time taken: 16.25 seconds
->Expanded nodes: 65
-
-5. ghost: center of maze, pacman: right-bottom of maze 
->Current memory usage: 0.179157MB
->Peak: 0.390039MB
->Time taken: 7.90 seconds
->Expanded nodes: 42
+ *Đây là hướng dẫn cơ bản để chạy và kiểm thử chương trình Pacman sử dụng AI thuật toán tìm đường.*
