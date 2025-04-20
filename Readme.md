@@ -2,12 +2,12 @@
 
 Each member was assigned specific tasks, and all members achieved full task completion.
 
-| MSSV      | Name              | Assigned Task                                                                 | Completion % | Individual Score (out of 9.0) |
-|-----------|-------------------|------------------------------------------------------------------------------|--------------|-------------------------------|
-| 22120050  | Hồ Mạnh Đào       | UCS implementation, Update README file                                      | 100%         | **9.0**                       |
-| 22120113  | Nguyễn Việt Hoàng | BFS implementation, Game Menu, Scoring, Time & Memory Analysis              | 100%         | **9.0**                       |
-| 22120115  | Đỗ Thái Học       | DFS implementation, Game UI, Time & Memory Analysis, Video Recording        | 100%         | **9.0**                       |
-| 22120418  | Huỳnh Trần Ty     | A* implementation, Time & Memory Analysis, Graphs and Final Report Writing  | 100%         | **9.0**                       |
+| MSSV      | Name              | Assigned Task                                                                 | Completion % |
+|-----------|-------------------|------------------------------------------------------------------------------|--------------|
+| 22120050  | Hồ Mạnh Đào       | UCS implementation, Update README file                                      | 100%         |                       
+| 22120113  | Nguyễn Việt Hoàng | BFS implementation, Game Menu, Scoring, Time & Memory Analysis              | 100%         |                       
+| 22120115  | Đỗ Thái Học       | DFS implementation, Game UI, Time & Memory Analysis, Video Recording        | 100%         |                       
+| 22120418  | Huỳnh Trần Ty     | A* implementation, Time & Memory Analysis, Graphs and Final Report Writing  | 100%         |                      
 
 ---
 
