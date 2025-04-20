@@ -36,8 +36,8 @@ pip install -r requirements.txt
 Clone từ GitHub hoặc tải về máy:
 
 ```bash
-git clone https://github.com/your-username/pacman-ai.git
-cd pacman-ai
+git clone https://github.com/your-username/pacman.git
+cd pacman
 ```
 
 *(Thay link bằng link repo của bạn nếu có)*
