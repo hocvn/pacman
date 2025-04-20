@@ -1,3 +1,15 @@
+##  Project Planning and Task Assignment 
+
+Each member was assigned specific tasks, and all members achieved full task completion.
+
+| MSSV      | Name              | Assigned Task                                                                 | Completion % | Individual Score (out of 9.0) |
+|-----------|-------------------|------------------------------------------------------------------------------|--------------|-------------------------------|
+| 22120050  | Hồ Mạnh Đào       | UCS implementation, Update README file                                      | 100%         | **9.0**                       |
+| 22120113  | Nguyễn Việt Hoàng | BFS implementation, Game Menu, Scoring, Time & Memory Analysis              | 100%         | **9.0**                       |
+| 22120115  | Đỗ Thái Học       | DFS implementation, Game UI, Time & Memory Analysis, Video Recording        | 100%         | **9.0**                       |
+| 22120418  | Huỳnh Trần Ty     | A* implementation, Time & Memory Analysis, Graphs and Final Report Writing  | 100%         | **9.0**                       |
+
+---
 
 #  Hướng Dẫn Chạy Chương Trình Pacman
 
@@ -9,10 +21,10 @@
 
 ###  Cài Đặt Thư Viện
 
-Mở terminal (hoặc CMD) và chạy lệnh sau để cài đặt pygame:
+Chạy lệnh sau trong terminal để cài đặt tất cả thư viện:
 
 ```bash
-pip install pygame
+pip install -r requirements.txt
 ```
 
 ---
@@ -55,7 +67,7 @@ python pacman.py
 ##  Ghi Chú Thêm
 
 - Bạn có thể chỉnh sửa vị trí bắt đầu của ghost và pacman trong code để thực hiện các thí nghiệm khác nhau.
-- Nếu muốn kiểm tra riêng từng thuật toán, chỉnh sửa phần gọi hàm tương ứng trong `pacman.py`.
+- Nếu muốn kiểm tra riêng từng thuật toán, chỉnh sửa phần gọi hàm tương ứng trong `main.py`.
 
 ---
 
