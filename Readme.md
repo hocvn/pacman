@@ -2,7 +2,7 @@
 
 Each member was assigned specific tasks, and all members achieved full task completion.
 
-| MSSV      | Name              | Assigned Task                                                                 | Completion % |
+| MSSV      | Name              | Assigned Task                                                                 | Completion  |
 |-----------|-------------------|------------------------------------------------------------------------------|--------------|
 | 22120050  | Hồ Mạnh Đào       | UCS implementation, Update README file                                      | 100%         |                       
 | 22120113  | Nguyễn Việt Hoàng | BFS implementation, Game Menu, Scoring, Time & Memory Analysis              | 100%         |                       
