@@ -47,7 +47,7 @@ cd pacman-ai
 Chạy file chính của game:
 
 ```bash
-python pacman.py
+python main.py
 ```
 
 ---
